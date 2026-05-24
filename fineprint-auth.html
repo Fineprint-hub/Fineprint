@@ -690,7 +690,7 @@ nav {
         <div class="form-group">
           <label class="form-label">Password</label>
           <div class="input-wrapper">
-            <input type="password" class="form-input" id="signup-password" placeholder="Min. 8 characters" oninput="checkPasswordStrength(this.value)"/>
+            <input type="password" class="form-input" id="signup-password" placeholder="Min. 8 characters" oninput="checkPasswordStrength(this.value)" oninput="checkPasswordStrength(this.value)"/>
             <button class="toggle-pw" onclick="togglePassword('signup-password', this)" type="button">👁</button>
           </div>
           <div class="pw-strength">
@@ -803,9 +803,15 @@ function switchTab(tab) {
 function selectPlan(plan) {
   selectedPlan = plan
   ;['free','pro','yearly'].forEach(p => {
-    document.getElementById('plan-'+p).className = 'plan-option' + (p === 'pro' ? ' popular' : '') + (p === plan ? ' selected' : '')
+    const el = document.getElementById('plan-'+p)
+    if (!el) return
+    let cls = 'plan-option'
+    if (p === 'pro') cls += ' popular'
+    if (p === plan) cls += ' selected'
+    el.className = cls
   })
   const btnText = document.getElementById('signup-btn-text')
+  if (!btnText) return
   if (plan === 'free') btnText.textContent = 'Create Free Account →'
   else if (plan === 'pro') btnText.textContent = 'Create Account & Pay $7.99/mo →'
   else btnText.textContent = 'Create Account & Pay $69.99/yr →'
