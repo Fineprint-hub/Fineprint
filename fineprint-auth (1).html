@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fineprint — Sign Up / Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy: #0a1628;
+  --navy-mid: #112240;
+  --navy-light: #1d3461;
+  --blue-bright: #2979d4;
+  --accent: #4facfe;
+  --white: #f0f6ff;
+  --gray: #8b9dbb;
+  --light-gray: #e8eef8;
+  --danger: #e05a5a;
+  --success: #3db88a;
+  --warning: #e8a838;
+  --gold: #c9a84c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* NAV */
+nav {
+  position: relative;
+  z-index: 10;
+  padding: 0 48px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(79,172,254,0.1);
+  background: rgba(10,22,40,0.8);
+  backdrop-filter: blur(20px);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--blue-bright), var(--accent));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.nav-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.nav-right {
+  font-size: 14px;
+  color: var(--gray);
+}
+
+.nav-right a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* MAIN LAYOUT */
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+  z-index: 1;
+}
+
+/* LEFT PANEL */
+.left-panel {
+  background: linear-gradient(160deg, rgba(29,52,97,0.4) 0%, rgba(17,34,64,0.2) 100%);
+  border-right: 1px solid rgba(79,172,254,0.08);
+  padding: 80px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.left-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 30% 40%, rgba(41,121,212,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.left-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(79,172,254,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,172,254,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.left-content { position: relative; z-index: 1; }
+
+.left-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(41,121,212,0.12);
+  border: 1px solid rgba(79,172,254,0.25);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.left-panel h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.left-panel h2 span {
+  background: linear-gradient(135deg, var(--accent), #00f2fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.left-sub {
+  font-size: 15px;
+  color: var(--gray);
+  line-height: 1.7;
+  margin-bottom: 40px;
+  font-weight: 300;
+  max-width: 400px;
+}
+
+.benefit-list { list-style: none; margin-bottom: 48px; }
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(79,172,254,0.06);
+}
+
+.benefit-icon {
+  width: 32px; height: 32px;
+  background: rgba(41,121,212,0.12);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.benefit-text h4 { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+.benefit-text p { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+.plan-preview {
+  background: rgba(10,22,40,0.6);
+  border: 1px solid rgba(79,172,254,0.15);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.plan-info h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.plan-info p { font-size: 12px; color: var(--gray); }
+
+.plan-price {
+  text-align: right;
+}
+
+.plan-price .amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.plan-price .period { font-size: 12px; color: var(--gray); }
+
+/* RIGHT PANEL — AUTH FORM */
+.right-panel {
+  padding: 80px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Tab switcher */
+.auth-tabs {
+  display: flex;
+  background: rgba(17,34,64,0.6);
+  border: 1px solid rgba(79,172,254,0.1);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 36px;
+}
+
+.auth-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--gray);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-tab.active {
+  background: rgba(41,121,212,0.2);
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.auth-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.auth-sub {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+/* Form */
+.form-group { margin-bottom: 18px; }
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  background: rgba(17,34,64,0.6);
+  border: 1px solid rgba(79,172,254,0.15);
+  border-radius: 8px;
+  padding: 13px 16px;
+  color: var(--white);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.form-input:focus {
+  border-color: rgba(79,172,254,0.45);
+  background: rgba(17,34,64,0.9);
+}
+
+.form-input::placeholder { color: rgba(139,157,187,0.4); }
+
+.form-input.error { border-color: rgba(224,90,90,0.5); }
+
+.input-hint {
+  font-size: 11px;
+  color: var(--gray);
+  margin-top: 5px;
+}
+
+.input-hint.error-msg { color: var(--danger); }
+
+/* Password toggle */
+.input-wrapper { position: relative; }
+.input-wrapper .form-input { padding-right: 44px; }
+.toggle-pw {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Password strength */
+.pw-strength {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.pw-bar {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  background: rgba(79,172,254,0.1);
+  transition: background 0.3s;
+}
+
+.pw-bar.weak { background: var(--danger); }
+.pw-bar.medium { background: var(--warning); }
+.pw-bar.strong { background: var(--success); }
+
+.pw-label {
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.pw-label.weak { color: var(--danger); }
+.pw-label.medium { color: var(--warning); }
+.pw-label.strong { color: var(--success); }
+
+/* Plan selector */
+.plan-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.plan-option {
+  background: rgba(17,34,64,0.6);
+  border: 1px solid rgba(79,172,254,0.12);
+  border-radius: 8px;
+  padding: 12px 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.plan-option.selected {
+  border-color: rgba(79,172,254,0.45);
+  background: rgba(41,121,212,0.15);
+}
+
+.plan-option.popular::before {
+  content: 'Popular';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--blue-bright), var(--accent));
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+
+.plan-option-name { font-size: 12px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+.plan-option-price { font-size: 14px; font-weight: 700; color: var(--accent); }
+.plan-option-sub { font-size: 10px; color: var(--gray); }
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--blue-bright), var(--accent));
+  border: none;
+  border-radius: 8px;
+  padding: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(41,121,212,0.3);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(41,121,212,0.45);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: rgba(139,157,187,0.3);
+  font-size: 12px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(79,172,254,0.1);
+}
+
+/* Google button */
+.google-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(79,172,254,0.2);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.google-btn:hover { border-color: rgba(79,172,254,0.4); background: rgba(79,172,254,0.05); }
+
+/* Terms note */
+.terms-note {
+  font-size: 11px;
+  color: rgba(139,157,187,0.5);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.terms-note a { color: var(--accent); text-decoration: none; }
+
+/* Forgot password */
+.forgot-link {
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  display: block;
+  text-align: right;
+  margin-top: 6px;
+}
+
+/* Success state */
+.success-box {
+  text-align: center;
+  padding: 20px 0;
+  display: none;
+}
+
+.success-icon {
+  width: 64px; height: 64px;
+  background: rgba(61,184,138,0.15);
+  border: 2px solid rgba(61,184,138,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 20px;
+}
+
+.success-box h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.success-box p { font-size: 14px; color: var(--gray); line-height: 1.65; margin-bottom: 24px; }
+
+/* Alert */
+.alert {
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert.error {
+  background: rgba(224,90,90,0.1);
+  border: 1px solid rgba(224,90,90,0.25);
+  color: #f0b0b0;
+}
+
+.alert.success {
+  background: rgba(61,184,138,0.1);
+  border: 1px solid rgba(61,184,138,0.25);
+  color: #a0e8cc;
+}
+
+.alert.show { display: flex; }
+
+/* Loading spinner */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-box { animation: fadeUp 0.4s ease; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .left-panel { display: none; }
+  .right-panel { padding: 40px 24px; }
+  nav { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="fineprint-website.html">
+    <div class="nav-logo-icon">🔍</div>
+    <span class="nav-logo-text">Fineprint</span>
+  </a>
+  <div class="nav-right" id="nav-right">
+    Already have an account? <a href="#" onclick="switchTab('login')">Sign in</a>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="left-bg"></div>
+    <div class="left-grid"></div>
+    <div class="left-content">
+      <div class="left-badge">✦ Join Fineprint</div>
+      <h2>Know what you're<br/><span>agreeing to.</span></h2>
+      <p class="left-sub">Thousands of people are signing up to things they shouldn't. Fineprint gives you the knowledge to make informed decisions about every service you use.</p>
+
+      <ul class="benefit-list">
+        <li class="benefit-item">
+          <div class="benefit-icon">🚦</div>
+          <div class="benefit-text">
+            <h4>Instant Risk Rating</h4>
+            <p>Know if an agreement is High, Medium or Low risk before you click "I Agree"</p>
+          </div>
+        </li>
+        <li class="benefit-item">
+          <div class="benefit-icon">⚠️</div>
+          <div class="benefit-text">
+            <h4>Red Flag Alerts</h4>
+            <p>Auto-renewal traps, data selling clauses, and arbitration waivers flagged instantly</p>
+          </div>
+        </li>
+        <li class="benefit-item">
+          <div class="benefit-icon">🌐</div>
+          <div class="benefit-text">
+            <h4>Browser Extension</h4>
+            <p>Auto-detects T&C pages as you browse — one click to decode any agreement</p>
+          </div>
+        </li>
+        <li class="benefit-item">
+          <div class="benefit-icon">📋</div>
+          <div class="benefit-text">
+            <h4>Save Your History</h4>
+            <p>Pro users can save and revisit every analysis they've ever run</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="plan-preview">
+        <div class="plan-info">
+          <h4>Fineprint Pro</h4>
+          <p>Unlimited analyses · History · PDF export · Cancel anytime</p>
+        </div>
+        <div class="plan-price">
+          <div class="amount">$7.99</div>
+          <div class="period">per month</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="auth-box">
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+        <button class="auth-tab" id="tab-login" onclick="switchTab('login')">Sign In</button>
+      </div>
+
+      <!-- Alert -->
+      <div class="alert error" id="alert-error">
+        <span>⚠️</span>
+        <span id="alert-error-text">Something went wrong.</span>
+      </div>
+      <div class="alert success" id="alert-success">
+        <span>✓</span>
+        <span id="alert-success-text">Success!</span>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signup-form">
+        <h2 class="auth-title">Create your account</h2>
+        <p class="auth-sub">Start free — 2 analyses per day. Upgrade anytime for unlimited access.</p>
+
+        <button class="google-btn" onclick="googleAuth()">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.31z"/></svg>
+          Continue with Google
+        </button>
+
+        <div class="divider">or sign up with email</div>
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="signup-name" placeholder="Your full name"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="signup-email" placeholder="you@example.com"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="signup-password" placeholder="Min. 8 characters" oninput="checkPasswordStrength(this.value)"/>
+            <button class="toggle-pw" onclick="togglePassword('signup-password', this)" type="button">👁</button>
+          </div>
+          <div class="pw-strength">
+            <div class="pw-bar" id="pw-bar-1"></div>
+            <div class="pw-bar" id="pw-bar-2"></div>
+            <div class="pw-bar" id="pw-bar-3"></div>
+            <div class="pw-bar" id="pw-bar-4"></div>
+          </div>
+          <div class="pw-label" id="pw-label"></div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:24px;">
+          <label class="form-label" style="margin-bottom:12px;">Choose Your Plan</label>
+          <div class="plan-selector">
+            <div class="plan-option" id="plan-free" onclick="selectPlan('free')">
+              <div class="plan-option-name">Free</div>
+              <div class="plan-option-price">$0</div>
+              <div class="plan-option-sub">2/day</div>
+            </div>
+            <div class="plan-option popular selected" id="plan-pro" onclick="selectPlan('pro')">
+              <div class="plan-option-name">Pro</div>
+              <div class="plan-option-price">$7.99</div>
+              <div class="plan-option-sub">/month</div>
+            </div>
+            <div class="plan-option" id="plan-yearly" onclick="selectPlan('yearly')">
+              <div class="plan-option-name">Yearly</div>
+              <div class="plan-option-price">$69.99</div>
+              <div class="plan-option-sub">/year</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="signup-btn" onclick="handleSignup()">
+          <span id="signup-btn-text">Create Account →</span>
+          <div class="spinner" id="signup-spinner"></div>
+        </button>
+
+        <p class="terms-note">By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-form" style="display:none;">
+        <h2 class="auth-title">Welcome back</h2>
+        <p class="auth-sub">Sign in to your Fineprint account to access your analyses.</p>
+
+        <button class="google-btn" onclick="googleAuth()">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.31z"/></svg>
+          Continue with Google
+        </button>
+
+        <div class="divider">or sign in with email</div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="login-email" placeholder="you@example.com"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="login-password" placeholder="Your password"/>
+            <button class="toggle-pw" onclick="togglePassword('login-password', this)" type="button">👁</button>
+          </div>
+          <a href="#" class="forgot-link" onclick="showForgotPassword()">Forgot password?</a>
+        </div>
+
+        <button class="submit-btn" id="login-btn" onclick="handleLogin()">
+          <span id="login-btn-text">Sign In →</span>
+          <div class="spinner" id="login-spinner"></div>
+        </button>
+
+        <p class="terms-note" style="margin-top:16px;">Don't have an account? <a href="#" onclick="switchTab('signup')" style="color:var(--accent);">Sign up free</a></p>
+      </div>
+
+      <!-- SUCCESS STATE -->
+      <div class="success-box" id="success-box">
+        <div class="success-icon">✅</div>
+        <h3>You're all set!</h3>
+        <p id="success-message">Your account has been created. Redirecting you to the app...</p>
+        <button class="submit-btn" onclick="window.location.href='fineprint-website.html'" style="max-width:240px;margin:0 auto;">Go to Fineprint →</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE CONFIG — replace with your real values ──
+const SUPABASE_URL = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJndWN6bHZhcmRnYmpzYW11dHJtIiwicm9sZSI6ImFub24iLCJpYXQiOj'
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+const PAYMENT_LINKS = {
+  pro: 'https://sandbox.flutterwave.com/pay/mx4rmjl6dms4',
+  yearly: 'https://sandbox.flutterwave.com/pay/rehzovjjmtmt',
+}
+
+let selectedPlan = 'pro'
+
+async function init() {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session?.user) window.location.href = 'fineprint-website.html'
+}
+
+function switchTab(tab) {
+  const isSignup = tab === 'signup'
+  document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none'
+  document.getElementById('login-form').style.display = isSignup ? 'none' : 'block'
+  document.getElementById('tab-signup').className = 'auth-tab' + (isSignup ? ' active' : '')
+  document.getElementById('tab-login').className = 'auth-tab' + (isSignup ? '' : ' active')
+  document.getElementById('nav-right').innerHTML = isSignup
+    ? 'Already have an account? <a href="#" onclick="switchTab(\'login\')">Sign in</a>'
+    : 'New here? <a href="#" onclick="switchTab(\'signup\')">Create free account</a>'
+  hideAlerts()
+}
+
+function selectPlan(plan) {
+  selectedPlan = plan
+  ;['free','pro','yearly'].forEach(p => {
+    document.getElementById('plan-'+p).className = 'plan-option' + (p === 'pro' ? ' popular' : '') + (p === plan ? ' selected' : '')
+  })
+  const btnText = document.getElementById('signup-btn-text')
+  if (plan === 'free') btnText.textContent = 'Create Free Account →'
+  else if (plan === 'pro') btnText.textContent = 'Create Account & Pay $7.99/mo →'
+  else btnText.textContent = 'Create Account & Pay $69.99/yr →'
+}
+
+function togglePassword(id, btn) {
+  const input = document.getElementById(id)
+  input.type = input.type === 'password' ? 'text' : 'password'
+  btn.textContent = input.type === 'password' ? '👁' : '🙈'
+}
+
+function checkPasswordStrength(pw) {
+  const bars = [1,2,3,4].map(i => document.getElementById('pw-bar-'+i))
+  const label = document.getElementById('pw-label')
+  bars.forEach(b => b.className = 'pw-bar')
+  if (!pw) { label.textContent = ''; return }
+  let score = 0
+  if (pw.length >= 8) score++
+  if (/[A-Z]/.test(pw)) score++
+  if (/[0-9]/.test(pw)) score++
+  if (/[^A-Za-z0-9]/.test(pw)) score++
+  const levels = ['weak','weak','medium','strong','strong']
+  const level = levels[score]
+  for (let i = 0; i < score; i++) bars[i].className = 'pw-bar ' + level
+  label.className = 'pw-label ' + level
+  label.textContent = { weak: 'Weak', medium: 'Good', strong: 'Strong' }[level] || ''
+}
+
+function showAlert(type, message) {
+  hideAlerts()
+  const el = document.getElementById('alert-' + type)
+  document.getElementById('alert-' + type + '-text').textContent = message
+  el.className = 'alert ' + type + ' show'
+}
+
+function hideAlerts() {
+  document.getElementById('alert-error').className = 'alert error'
+  document.getElementById('alert-success').className = 'alert success'
+}
+
+function setLoading(form, loading) {
+  const btn = document.getElementById(form + '-btn')
+  const spinner = document.getElementById(form + '-spinner')
+  const text = document.getElementById(form + '-btn-text')
+  btn.disabled = loading
+  spinner.style.display = loading ? 'block' : 'none'
+  text.style.opacity = loading ? '0' : '1'
+}
+
+async function handleSignup() {
+  const name = document.getElementById('signup-name').value.trim()
+  const email = document.getElementById('signup-email').value.trim()
+  const password = document.getElementById('signup-password').value
+
+  if (!name) { showAlert('error', 'Please enter your full name.'); return }
+  if (!email || !email.includes('@')) { showAlert('error', 'Please enter a valid email address.'); return }
+  if (password.length < 8) { showAlert('error', 'Password must be at least 8 characters.'); return }
+
+  setLoading('signup', true)
+  hideAlerts()
+
+  const { data, error } = await supabase.auth.signUp({
+    email, password,
+    options: { data: { full_name: name } }
+  })
+
+  setLoading('signup', false)
+
+  if (error) { showAlert('error', error.message); return }
+
+  if (selectedPlan !== 'free') {
+    const paymentUrl = PAYMENT_LINKS[selectedPlan] + '?customer_email=' + encodeURIComponent(email)
+    showSuccess('Account created! Taking you to complete your payment...')
+    setTimeout(() => { window.location.href = paymentUrl }, 1500)
+    return
+  }
+
+  showSuccess('Account created! Welcome to Fineprint.')
+  setTimeout(() => { window.location.href = 'fineprint-website.html' }, 2000)
+}
+
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim()
+  const password = document.getElementById('login-password').value
+
+  if (!email) { showAlert('error', 'Please enter your email address.'); return }
+  if (!password) { showAlert('error', 'Please enter your password.'); return }
+
+  setLoading('login', true)
+  hideAlerts()
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+  setLoading('login', false)
+
+  if (error) {
+    showAlert('error', error.message === 'Invalid login credentials'
+      ? 'Incorrect email or password. Please try again.'
+      : error.message)
+    return
+  }
+
+  showSuccess('Welcome back! Taking you to the app...')
+  setTimeout(() => { window.location.href = 'fineprint-website.html' }, 1500)
+}
+
+async function googleAuth() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/fineprint-website.html' }
+  })
+  if (error) showAlert('error', error.message)
+}
+
+async function showForgotPassword() {
+  const email = document.getElementById('login-email').value.trim()
+  if (!email) { showAlert('error', 'Please enter your email address first.'); return }
+  const { error } = await supabase.auth.resetPasswordForEmail(email)
+  if (error) showAlert('error', error.message)
+  else showAlert('success', 'Password reset email sent to ' + email + '. Check your inbox.')
+}
+
+function showSuccess(message) {
+  document.getElementById('signup-form').style.display = 'none'
+  document.getElementById('login-form').style.display = 'none'
+  document.getElementById('success-message').textContent = message
+  document.getElementById('success-box').style.display = 'block'
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  init()
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return
+    const signupVisible = document.getElementById('signup-form').style.display !== 'none'
+    if (signupVisible) handleSignup()
+    else handleLogin()
+  })
+})
+</script>
+</body>
+</html>
