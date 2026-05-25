@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236366f1'/%3E%3Ccircle cx='42' cy='42' r='18' fill='none' stroke='white' stroke-width='8'/%3E%3Cline x1='55' y1='55' x2='75' y2='75' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E"/>
 <title>Fineprint — Sign Up / Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -728,7 +729,7 @@ nav {
           <div class="spinner" id="signup-spinner"></div>
         </button>
 
-        <p class="terms-note">By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+        <p class="terms-note">By creating an account you agree to our <a href="fineprint-terms.html" target="_blank">Terms of Service</a> and <a href="fineprint-privacy.html" target="_blank">Privacy Policy</a>.</p>
       </div>
 
       <!-- LOGIN FORM -->
@@ -785,7 +786,7 @@ let selectedPlan = 'pro'
 
 async function init() {
   const { data: { session } } = await supabase.auth.getSession()
-  if (session?.user) window.location.href = 'fineprint-website.html'
+  if (session?.user) window.location.href = '/'
 }
 
 function switchTab(tab) {
@@ -801,20 +802,20 @@ function switchTab(tab) {
 }
 
 function selectPlan(plan) {
-  selectedPlan = plan
-  ;['free','pro','yearly'].forEach(p => {
-    const el = document.getElementById('plan-'+p)
-    if (!el) return
-    let cls = 'plan-option'
-    if (p === 'pro') cls += ' popular'
-    if (p === plan) cls += ' selected'
-    el.className = cls
-  })
-  const btnText = document.getElementById('signup-btn-text')
-  if (!btnText) return
-  if (plan === 'free') btnText.textContent = 'Create Free Account →'
-  else if (plan === 'pro') btnText.textContent = 'Create Account & Pay $7.99/mo →'
-  else btnText.textContent = 'Create Account & Pay $69.99/yr →'
+  selectedPlan = plan;
+  ['free','pro','yearly'].forEach(function(p) {
+    var el = document.getElementById('plan-'+p);
+    if (!el) return;
+    var cls = 'plan-option';
+    if (p === 'pro') cls += ' popular';
+    if (p === plan) cls += ' selected';
+    el.className = cls;
+  });
+  var btnText = document.getElementById('signup-btn-text');
+  if (!btnText) return;
+  if (plan === 'free') btnText.textContent = 'Create Free Account →';
+  else if (plan === 'pro') btnText.textContent = 'Create Account & Pay $7.99/mo →';
+  else btnText.textContent = 'Create Account & Pay $69.99/yr →';
 }
 
 function togglePassword(id, btn) {
@@ -890,7 +891,7 @@ async function handleSignup() {
   }
 
   showSuccess('Account created! Welcome to Fineprint.')
-  setTimeout(() => { window.location.href = 'fineprint-website.html' }, 2000)
+  setTimeout(() => { window.location.href = '/' }, 2000)
 }
 
 async function handleLogin() {
@@ -915,7 +916,7 @@ async function handleLogin() {
   }
 
   showSuccess('Welcome back! Taking you to the app...')
-  setTimeout(() => { window.location.href = 'fineprint-website.html' }, 1500)
+  setTimeout(() => { window.location.href = '/' }, 1500)
 }
 
 async function googleAuth() {
