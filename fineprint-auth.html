@@ -594,7 +594,7 @@ nav {
     <span class="nav-logo-text">Fineprint</span>
   </a>
   <div class="nav-right" id="nav-right">
-    Already have an account? <a href="#" onclick="switchTab('login')">Sign in</a>
+    Already have an account? <a href="#" >Sign in</a>
   </div>
 </nav>
 
@@ -659,8 +659,8 @@ nav {
 
       <!-- Tab switcher -->
       <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
-        <button class="auth-tab" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab active" id="tab-signup" >Create Account</button>
+        <button class="auth-tab" id="tab-login" >Sign In</button>
       </div>
 
       <!-- Alert -->
@@ -692,7 +692,7 @@ nav {
           <label class="form-label">Password</label>
           <div class="input-wrapper">
             <input type="password" class="form-input" id="signup-password" placeholder="Min. 8 characters" oninput="checkPasswordStrength(this.value)" oninput="checkPasswordStrength(this.value)"/>
-            <button class="toggle-pw" onclick="togglePassword('signup-password', this)" type="button">👁</button>
+            <button class="toggle-pw"  type="button">👁</button>
           </div>
           <div class="pw-strength">
             <div class="pw-bar" id="pw-bar-1"></div>
@@ -706,17 +706,17 @@ nav {
         <div class="form-group" style="margin-bottom:24px;">
           <label class="form-label" style="margin-bottom:12px;">Choose Your Plan</label>
           <div class="plan-selector">
-            <div class="plan-option" id="plan-free" onclick="selectPlan('free')">
+            <div class="plan-option" id="plan-free" >
               <div class="plan-option-name">Free</div>
               <div class="plan-option-price">$0</div>
               <div class="plan-option-sub">2/day</div>
             </div>
-            <div class="plan-option popular selected" id="plan-pro" onclick="selectPlan('pro')">
+            <div class="plan-option popular selected" id="plan-pro" >
               <div class="plan-option-name">Pro</div>
               <div class="plan-option-price">$7.99</div>
               <div class="plan-option-sub">/month</div>
             </div>
-            <div class="plan-option" id="plan-yearly" onclick="selectPlan('yearly')">
+            <div class="plan-option" id="plan-yearly" >
               <div class="plan-option-name">Yearly</div>
               <div class="plan-option-price">$69.99</div>
               <div class="plan-option-sub">/year</div>
@@ -724,7 +724,7 @@ nav {
           </div>
         </div>
 
-        <button class="submit-btn" id="signup-btn" onclick="handleSignup()">
+        <button class="submit-btn" id="signup-btn" >
           <span id="signup-btn-text">Create Account →</span>
           <div class="spinner" id="signup-spinner"></div>
         </button>
@@ -746,17 +746,17 @@ nav {
           <label class="form-label">Password</label>
           <div class="input-wrapper">
             <input type="password" class="form-input" id="login-password" placeholder="Your password"/>
-            <button class="toggle-pw" onclick="togglePassword('login-password', this)" type="button">👁</button>
+            <button class="toggle-pw"  type="button">👁</button>
           </div>
-          <a href="#" class="forgot-link" onclick="showForgotPassword()">Forgot password?</a>
+          <a href="#" class="forgot-link" >Forgot password?</a>
         </div>
 
-        <button class="submit-btn" id="login-btn" onclick="handleLogin()">
+        <button class="submit-btn" id="login-btn" >
           <span id="login-btn-text">Sign In →</span>
           <div class="spinner" id="login-spinner"></div>
         </button>
 
-        <p class="terms-note" style="margin-top:16px;">Don't have an account? <a href="#" onclick="switchTab('signup')" style="color:var(--accent);">Sign up free</a></p>
+        <p class="terms-note" style="margin-top:16px;">Don't have an account? <a href="#"  style="color:var(--accent);">Sign up free</a></p>
       </div>
 
       <!-- SUCCESS STATE -->
@@ -772,39 +772,137 @@ nav {
 </div>
 
 <script>
-// ── SUPABASE CONFIG — replace with your real values ──
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+// ── CONFIG ──────────────────────────────────────────
+var SUPABASE_URL = ' https://rguczlvardgbjsamutrm.supabase.co/rest/v1/';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJndWN6bHZhcmRnYmpzYW11dHJtIiwicm9sZSI6ImFub24iLCJpYXQiOj';
+var supabaseClient = null;
 
-const PAYMENT_LINKS = {
+var PAYMENT_LINKS = {
   pro: 'https://sandbox.flutterwave.com/pay/mx4rmjl6dms4',
-  yearly: 'https://sandbox.flutterwave.com/pay/rehzovjjmtmt',
+  yearly: 'https://sandbox.flutterwave.com/pay/rehzovjjmtmt'
+};
+
+var selectedPlan = 'pro';
+
+// ── INIT ─────────────────────────────────────────────
+window.addEventListener('load', function() {
+  try {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseClient.auth.getSession().then(function(result) {
+      if (result.data && result.data.session && result.data.session.user) {
+        window.location.href = '/';
+      }
+    });
+  } catch(e) {
+    console.log('Supabase init error:', e);
+  }
+
+  // Attach all event listeners after DOM is ready
+  attachListeners();
+});
+
+function attachListeners() {
+  // Tab buttons
+  var tabSignup = document.getElementById('tab-signup');
+  var tabLogin = document.getElementById('tab-login');
+  if (tabSignup) tabSignup.addEventListener('click', function() { switchTab('signup'); });
+  if (tabLogin) tabLogin.addEventListener('click', function() { switchTab('login'); });
+
+  // Plan options
+  var planFree = document.getElementById('plan-free');
+  var planPro = document.getElementById('plan-pro');
+  var planYearly = document.getElementById('plan-yearly');
+  if (planFree) planFree.addEventListener('click', function() { selectPlan('free'); });
+  if (planPro) planPro.addEventListener('click', function() { selectPlan('pro'); });
+  if (planYearly) planYearly.addEventListener('click', function() { selectPlan('yearly'); });
+
+  // Password toggles
+  var pwToggle1 = document.querySelector('#signup-password + .toggle-pw, .input-wrapper .toggle-pw');
+  var allToggles = document.querySelectorAll('.toggle-pw');
+  allToggles.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var input = this.parentElement.querySelector('input');
+      if (!input) return;
+      input.type = input.type === 'password' ? 'text' : 'password';
+      this.textContent = input.type === 'password' ? '👁' : '🙈';
+    });
+  });
+
+  // Password strength
+  var pwInput = document.getElementById('signup-password');
+  if (pwInput) {
+    pwInput.addEventListener('input', function() {
+      checkPasswordStrength(this.value);
+    });
+  }
+
+  // Signup button
+  var signupBtn = document.getElementById('signup-btn');
+  if (signupBtn) signupBtn.addEventListener('click', handleSignup);
+
+  // Login button
+  var loginBtn = document.getElementById('login-btn');
+  if (loginBtn) loginBtn.addEventListener('click', handleLogin);
+
+  // Forgot password
+  var forgotLink = document.querySelector('.forgot-link');
+  if (forgotLink) forgotLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    showForgotPassword();
+  });
+
+  // Enter key
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    var signupVisible = document.getElementById('signup-form') &&
+      document.getElementById('signup-form').style.display !== 'none';
+    if (signupVisible) handleSignup();
+    else handleLogin();
+  });
+
+  // Nav sign in link
+  var navSignin = document.querySelector('#nav-right a');
+  if (navSignin) navSignin.addEventListener('click', function(e) {
+    e.preventDefault();
+    switchTab('login');
+  });
 }
 
-let selectedPlan = 'pro'
-
-async function init() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (session?.user) window.location.href = '/'
-}
-
+// ── SWITCH TAB ────────────────────────────────────────
 function switchTab(tab) {
-  const isSignup = tab === 'signup'
-  document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none'
-  document.getElementById('login-form').style.display = isSignup ? 'none' : 'block'
-  document.getElementById('tab-signup').className = 'auth-tab' + (isSignup ? ' active' : '')
-  document.getElementById('tab-login').className = 'auth-tab' + (isSignup ? '' : ' active')
-  document.getElementById('nav-right').innerHTML = isSignup
-    ? 'Already have an account? <a href="#" onclick="switchTab(\'login\')">Sign in</a>'
-    : 'New here? <a href="#" onclick="switchTab(\'signup\')">Create free account</a>'
-  hideAlerts()
+  var isSignup = tab === 'signup';
+  var signupForm = document.getElementById('signup-form');
+  var loginForm = document.getElementById('login-form');
+  var tabSignupEl = document.getElementById('tab-signup');
+  var tabLoginEl = document.getElementById('tab-login');
+  var navRight = document.getElementById('nav-right');
+
+  if (signupForm) signupForm.style.display = isSignup ? 'block' : 'none';
+  if (loginForm) loginForm.style.display = isSignup ? 'none' : 'block';
+  if (tabSignupEl) tabSignupEl.className = 'auth-tab' + (isSignup ? ' active' : '');
+  if (tabLoginEl) tabLoginEl.className = 'auth-tab' + (isSignup ? '' : ' active');
+  if (navRight) navRight.innerHTML = isSignup
+    ? 'Already have an account? <a href="#" id="nav-signin-link">Sign in</a>'
+    : 'New here? <a href="#" id="nav-signup-link">Create free account</a>';
+
+  // Re-attach nav link listener
+  var newLink = document.getElementById('nav-signin-link') || document.getElementById('nav-signup-link');
+  if (newLink) {
+    newLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      switchTab(isSignup ? 'login' : 'signup');
+    });
+  }
+
+  hideAlerts();
 }
 
+// ── SELECT PLAN ───────────────────────────────────────
 function selectPlan(plan) {
   selectedPlan = plan;
-  ['free','pro','yearly'].forEach(function(p) {
-    var el = document.getElementById('plan-'+p);
+  var plans = ['free', 'pro', 'yearly'];
+  plans.forEach(function(p) {
+    var el = document.getElementById('plan-' + p);
     if (!el) return;
     var cls = 'plan-option';
     if (p === 'pro') cls += ' popular';
@@ -818,139 +916,164 @@ function selectPlan(plan) {
   else btnText.textContent = 'Create Account & Pay $69.99/yr →';
 }
 
-function togglePassword(id, btn) {
-  const input = document.getElementById(id)
-  input.type = input.type === 'password' ? 'text' : 'password'
-  btn.textContent = input.type === 'password' ? '👁' : '🙈'
-}
-
+// ── PASSWORD STRENGTH ─────────────────────────────────
 function checkPasswordStrength(pw) {
-  const bars = [1,2,3,4].map(i => document.getElementById('pw-bar-'+i))
-  const label = document.getElementById('pw-label')
-  bars.forEach(b => b.className = 'pw-bar')
-  if (!pw) { label.textContent = ''; return }
-  let score = 0
-  if (pw.length >= 8) score++
-  if (/[A-Z]/.test(pw)) score++
-  if (/[0-9]/.test(pw)) score++
-  if (/[^A-Za-z0-9]/.test(pw)) score++
-  const levels = ['weak','weak','medium','strong','strong']
-  const level = levels[score]
-  for (let i = 0; i < score; i++) bars[i].className = 'pw-bar ' + level
-  label.className = 'pw-label ' + level
-  label.textContent = { weak: 'Weak', medium: 'Good', strong: 'Strong' }[level] || ''
+  var bars = [];
+  for (var i = 1; i <= 4; i++) {
+    var bar = document.getElementById('pw-bar-' + i);
+    if (bar) bars.push(bar);
+  }
+  var label = document.getElementById('pw-label');
+  bars.forEach(function(b) { b.className = 'pw-bar'; });
+  if (!pw || !label) return;
+  var score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  var levels = ['weak', 'weak', 'medium', 'strong', 'strong'];
+  var level = levels[score] || 'weak';
+  for (var j = 0; j < score && j < bars.length; j++) {
+    bars[j].className = 'pw-bar ' + level;
+  }
+  label.className = 'pw-label ' + level;
+  var labelText = { weak: 'Weak', medium: 'Good', strong: 'Strong' };
+  label.textContent = labelText[level] || '';
 }
 
+// ── ALERTS ────────────────────────────────────────────
 function showAlert(type, message) {
-  hideAlerts()
-  const el = document.getElementById('alert-' + type)
-  document.getElementById('alert-' + type + '-text').textContent = message
-  el.className = 'alert ' + type + ' show'
+  hideAlerts();
+  var el = document.getElementById('alert-' + type);
+  var textEl = document.getElementById('alert-' + type + '-text');
+  if (el && textEl) {
+    textEl.textContent = message;
+    el.className = 'alert ' + type + ' show';
+  }
 }
 
 function hideAlerts() {
-  document.getElementById('alert-error').className = 'alert error'
-  document.getElementById('alert-success').className = 'alert success'
+  var errEl = document.getElementById('alert-error');
+  var sucEl = document.getElementById('alert-success');
+  if (errEl) errEl.className = 'alert error';
+  if (sucEl) sucEl.className = 'alert success';
 }
 
+// ── LOADING STATE ─────────────────────────────────────
 function setLoading(form, loading) {
-  const btn = document.getElementById(form + '-btn')
-  const spinner = document.getElementById(form + '-spinner')
-  const text = document.getElementById(form + '-btn-text')
-  btn.disabled = loading
-  spinner.style.display = loading ? 'block' : 'none'
-  text.style.opacity = loading ? '0' : '1'
+  var btn = document.getElementById(form + '-btn');
+  var spinner = document.getElementById(form + '-spinner');
+  var text = document.getElementById(form + '-btn-text');
+  if (btn) btn.disabled = loading;
+  if (spinner) spinner.style.display = loading ? 'block' : 'none';
+  if (text) text.style.opacity = loading ? '0' : '1';
 }
 
+// ── SIGNUP ────────────────────────────────────────────
 async function handleSignup() {
-  const name = document.getElementById('signup-name').value.trim()
-  const email = document.getElementById('signup-email').value.trim()
-  const password = document.getElementById('signup-password').value
+  var name = document.getElementById('signup-name').value.trim();
+  var email = document.getElementById('signup-email').value.trim();
+  var password = document.getElementById('signup-password').value;
 
-  if (!name) { showAlert('error', 'Please enter your full name.'); return }
-  if (!email || !email.includes('@')) { showAlert('error', 'Please enter a valid email address.'); return }
-  if (password.length < 8) { showAlert('error', 'Password must be at least 8 characters.'); return }
+  if (!name) { showAlert('error', 'Please enter your full name.'); return; }
+  if (!email || !email.includes('@')) { showAlert('error', 'Please enter a valid email address.'); return; }
+  if (password.length < 8) { showAlert('error', 'Password must be at least 8 characters.'); return; }
 
-  setLoading('signup', true)
-  hideAlerts()
+  setLoading('signup', true);
+  hideAlerts();
 
-  const { data, error } = await supabase.auth.signUp({
-    email, password,
-    options: { data: { full_name: name } }
-  })
+  try {
+    var result = await supabaseClient.auth.signUp({
+      email: email,
+      password: password,
+      options: { data: { full_name: name } }
+    });
 
-  setLoading('signup', false)
+    setLoading('signup', false);
 
-  if (error) { showAlert('error', error.message); return }
+    if (result.error) {
+      showAlert('error', result.error.message);
+      return;
+    }
 
-  if (selectedPlan !== 'free') {
-    const paymentUrl = PAYMENT_LINKS[selectedPlan] + '?customer_email=' + encodeURIComponent(email)
-    showSuccess('Account created! Taking you to complete your payment...')
-    setTimeout(() => { window.location.href = paymentUrl }, 1500)
-    return
+    if (selectedPlan !== 'free' && PAYMENT_LINKS[selectedPlan]) {
+      var paymentUrl = PAYMENT_LINKS[selectedPlan] + '?customer_email=' + encodeURIComponent(email);
+      showSuccess('Account created! Taking you to complete your payment...');
+      setTimeout(function() { window.location.href = paymentUrl; }, 1500);
+      return;
+    }
+
+    showSuccess('Account created! Welcome to Fineprint.');
+    setTimeout(function() { window.location.href = '/'; }, 2000);
+
+  } catch(e) {
+    setLoading('signup', false);
+    showAlert('error', 'Something went wrong. Please try again.');
   }
-
-  showSuccess('Account created! Welcome to Fineprint.')
-  setTimeout(() => { window.location.href = '/' }, 2000)
 }
 
+// ── LOGIN ─────────────────────────────────────────────
 async function handleLogin() {
-  const email = document.getElementById('login-email').value.trim()
-  const password = document.getElementById('login-password').value
+  var email = document.getElementById('login-email').value.trim();
+  var password = document.getElementById('login-password').value;
 
-  if (!email) { showAlert('error', 'Please enter your email address.'); return }
-  if (!password) { showAlert('error', 'Please enter your password.'); return }
+  if (!email) { showAlert('error', 'Please enter your email address.'); return; }
+  if (!password) { showAlert('error', 'Please enter your password.'); return; }
 
-  setLoading('login', true)
-  hideAlerts()
+  setLoading('login', true);
+  hideAlerts();
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  try {
+    var result = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
 
-  setLoading('login', false)
+    setLoading('login', false);
 
-  if (error) {
-    showAlert('error', error.message === 'Invalid login credentials'
-      ? 'Incorrect email or password. Please try again.'
-      : error.message)
-    return
+    if (result.error) {
+      showAlert('error', result.error.message === 'Invalid login credentials'
+        ? 'Incorrect email or password. Please try again.'
+        : result.error.message);
+      return;
+    }
+
+    showSuccess('Welcome back! Taking you to the app...');
+    setTimeout(function() { window.location.href = '/'; }, 1500);
+
+  } catch(e) {
+    setLoading('login', false);
+    showAlert('error', 'Something went wrong. Please try again.');
   }
-
-  showSuccess('Welcome back! Taking you to the app...')
-  setTimeout(() => { window.location.href = '/' }, 1500)
 }
 
-async function googleAuth() {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin + '/fineprint-website.html' }
-  })
-  if (error) showAlert('error', error.message)
-}
-
+// ── FORGOT PASSWORD ───────────────────────────────────
 async function showForgotPassword() {
-  const email = document.getElementById('login-email').value.trim()
-  if (!email) { showAlert('error', 'Please enter your email address first.'); return }
-  const { error } = await supabase.auth.resetPasswordForEmail(email)
-  if (error) showAlert('error', error.message)
-  else showAlert('success', 'Password reset email sent to ' + email + '. Check your inbox.')
+  var email = document.getElementById('login-email').value.trim();
+  if (!email) {
+    showAlert('error', 'Please enter your email address first, then click Forgot Password.');
+    return;
+  }
+  try {
+    var result = await supabaseClient.auth.resetPasswordForEmail(email);
+    if (result.error) showAlert('error', result.error.message);
+    else showAlert('success', 'Password reset email sent to ' + email + '. Check your inbox.');
+  } catch(e) {
+    showAlert('error', 'Something went wrong. Please try again.');
+  }
 }
 
+// ── SUCCESS ───────────────────────────────────────────
 function showSuccess(message) {
-  document.getElementById('signup-form').style.display = 'none'
-  document.getElementById('login-form').style.display = 'none'
-  document.getElementById('success-message').textContent = message
-  document.getElementById('success-box').style.display = 'block'
+  var signupForm = document.getElementById('signup-form');
+  var loginForm = document.getElementById('login-form');
+  var successBox = document.getElementById('success-box');
+  var successMsg = document.getElementById('success-message');
+  if (signupForm) signupForm.style.display = 'none';
+  if (loginForm) loginForm.style.display = 'none';
+  if (successMsg) successMsg.textContent = message;
+  if (successBox) successBox.style.display = 'block';
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  init()
-  document.addEventListener('keydown', e => {
-    if (e.key !== 'Enter') return
-    const signupVisible = document.getElementById('signup-form').style.display !== 'none'
-    if (signupVisible) handleSignup()
-    else handleLogin()
-  })
-})
 </script>
 </body>
 </html>
