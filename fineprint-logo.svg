@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2979d4"/>
+      <stop offset="100%" style="stop-color:#4facfe"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="40" fill="url(#bg)"/>
+  <!-- Magnifier circle -->
+  <circle cx="85" cy="85" r="38" fill="none" stroke="white" stroke-width="14"/>
+  <!-- Magnifier handle -->
+  <line x1="113" y1="113" x2="155" y2="155" stroke="white" stroke-width="14" stroke-linecap="round"/>
+  <!-- Document lines inside magnifier -->
+  <line x1="68" y1="80" x2="102" y2="80" stroke="white" stroke-width="7" stroke-linecap="round" opacity="0.7"/>
+  <line x1="68" y1="93" x2="95" y2="93" stroke="white" stroke-width="7" stroke-linecap="round" opacity="0.7"/>
+</svg>
