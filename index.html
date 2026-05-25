@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236366f1'/%3E%3Ccircle cx='42' cy='42' r='18' fill='none' stroke='white' stroke-width='8'/%3E%3Cline x1='55' y1='55' x2='75' y2='75' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E"/>
 <title>Fineprint — Know What You're Signing</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -26,7 +27,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
 body {
   background: var(--navy);
@@ -891,7 +892,7 @@ footer {
     <li><a href="#features">Features</a></li>
     <li><a href="#extension">Extension</a></li>
     <li><a href="#pricing">Pricing</a></li>
-    <li><a href="/fineprint-auth.html" class="nav-cta">Try Free →</a></li>
+    <li><a href="fineprint-auth.html" class="nav-cta">Try Free →</a></li>
   </ul>
 </nav>
 
@@ -907,7 +908,7 @@ footer {
     <h1>Stop agreeing to things<br/>you haven't <span>read.</span></h1>
     <p class="hero-sub">Paste any Terms & Conditions and get a plain-English breakdown in seconds. Know exactly what you're signing up for.</p>
     <div class="hero-actions">
-      <a href=/fineprint-auth.html class="btn-primary">🔍 Analyze for Free</a>
+      <a href="fineprint-auth.html" class="btn-primary">🔍 Analyze for Free</a>
       <a href="#extension" class="btn-secondary">⬇ Get the Extension</a>
     </div>
     <div class="hero-stats">
@@ -1066,7 +1067,7 @@ footer {
           <span style="color:var(--success);">✓</span> 3 free analyses included
         </li>
       </ul>
-      <a href="#" class="btn-primary" style="display:inline-flex;">⬇ Add to Chrome — Free</a>
+      <div style="display:inline-flex;flex-direction:column;gap:10px;align-items:flex-start;"><span style="background:rgba(79,172,254,0.15);border:1px solid rgba(79,172,254,0.3);color:var(--accent);font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:0.1em;">🚀 COMING SOON</span><p style="font-size:13px;color:var(--gray);">The Chrome extension is in development. Leave your email to be notified when it launches.</p><div style="display:flex;gap:8px;"><input type="email" placeholder="your@email.com" style="background:rgba(10,22,40,0.7);border:1px solid rgba(79,172,254,0.2);border-radius:6px;padding:10px 14px;color:var(--white);font-size:13px;font-family:inherit;outline:none;width:220px;"/><button onclick="alert('Thanks! We will notify you when the extension launches.')" style="background:linear-gradient(135deg,var(--blue-bright),var(--accent));border:none;border-radius:6px;padding:10px 16px;color:#fff;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">Notify Me</button></div></div>
     </div>
     <div class="ext-visual">
       <div class="ext-header">
@@ -1145,18 +1146,19 @@ footer {
     Fineprint
   </div>
   <div class="footer-links">
-    <a href="#">How it works</a>
-    <a href="#">Pricing</a>
-    <a href="#">Chrome Extension</a>
-    <a href="#">Privacy Policy</a>
-    <a href="#">Contact</a>
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#extension">Chrome Extension</a>
+    <a href="fineprint-terms.html" target="_blank">Terms of Service</a>
+    <a href="fineprint-privacy.html" target="_blank">Privacy Policy</a>
+    <a href="mailto:usefineprint@gmail.com">Contact</a>
   </div>
   <div class="footer-copy">© 2026 Fineprint. All rights reserved.</div>
 </footer>
 
 <script>
 // ── SUPABASE CONFIG — replace with your real values ──
-const SUPABASE_URL = 'https://rguczlvardgbjsamutrm.supabase.co/rest/v1/'
+const SUPABASE_URL = 'YOUR_SUPABASE_URL'
 const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
