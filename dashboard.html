@@ -927,7 +927,7 @@ async function runAnalysis() {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.access_token}`
       },
-      body: JSON.stringify({ content: text, type: currentMode })
+      body: JSON.stringify({ text: currentMode === 'paste' ? text : null, url: currentMode === 'url' ? text : null })
     })
 
     if (!res.ok) {
@@ -935,7 +935,8 @@ async function runAnalysis() {
       throw new Error(err.error || 'Analysis failed')
     }
 
-    const result = await res.json()
+    const json = await res.json()
+    const result = json.result
     renderResults(result)
 
     // Update local usage count
@@ -967,7 +968,8 @@ async function runAnalysis() {
 }
 
 function renderResults(r) {
-  const risk = (r.risk_level || 'medium').toLowerCase()
+  const riskRaw = (r.risk_level || 'medium').toLowerCase()
+  const risk = riskRaw.includes('high') ? 'high' : riskRaw.includes('low') ? 'low' : 'medium'
   const riskConfig = {
     high: { icon: '🔴', label: 'High Risk', sub: 'Be very careful before agreeing', cls: 'high' },
     medium: { icon: '🟡', label: 'Medium Risk', sub: 'Review carefully before agreeing', cls: 'medium' },
@@ -981,7 +983,7 @@ function renderResults(r) {
   document.getElementById('verdict-title').textContent = cfg.label
   document.getElementById('verdict-sub').textContent = cfg.sub
 
-  document.getElementById('result-summary').textContent = r.summary || '—'
+  document.getElementById('result-summary').textContent = r.tldr || r.summary || '—'
 
   const flags = r.red_flags || []
   document.getElementById('result-flags').innerHTML = flags.length
