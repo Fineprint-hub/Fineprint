@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236366f1'/%3E%3Ccircle cx='42' cy='42' r='18' fill='none' stroke='white' stroke-width='8'/%3E%3Cline x1='55' y1='55' x2='75' y2='75' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E"/>
 <title>Fineprint — Know What You're Signing</title>
+<meta name="description" content="Fineprint decodes any Terms & Conditions into plain English. Get instant risk ratings, red flag detection and key point breakdowns. Know what you're signing up for."/>
+<meta name="keywords" content="terms and conditions decoder, T&C analyzer, privacy policy summary, legal document AI, terms of service plain English"/>
+<meta name="author" content="Fineprint"/>
+<meta property="og:title" content="Fineprint — Know What You're Signing"/>
+<meta property="og:description" content="Paste any Terms & Conditions and get a plain-English breakdown in seconds. Free to use."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://fineprint-ecru.vercel.app"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Fineprint — Know What You're Signing"/>
+<meta name="twitter:description" content="Decode any T&C in seconds. Free AI-powered tool."/>
+<meta name="robots" content="index, follow"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -113,6 +124,148 @@ nav {
 }
 
 .nav-cta:hover { opacity: 0.88; color: #fff !important; }
+
+/* ── USER MENU ── */
+.user-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: rgba(41,121,212,0.12);
+  border: 1px solid rgba(79,172,254,0.2);
+  border-radius: 8px;
+  padding: 7px 14px 7px 9px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.user-avatar-btn:hover {
+  background: rgba(41,121,212,0.2);
+  border-color: rgba(79,172,254,0.35);
+}
+
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue-bright), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-chevron {
+  font-size: 10px;
+  color: var(--gray);
+  transition: transform 0.2s;
+}
+
+.user-menu.open .user-chevron { transform: rotate(180deg); }
+
+.user-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #0f1f3d;
+  border: 1px solid rgba(79,172,254,0.15);
+  border-radius: 12px;
+  min-width: 220px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.user-menu.open .user-dropdown { display: block; }
+
+.dropdown-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(79,172,254,0.08);
+}
+
+.dropdown-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 2px;
+}
+
+.dropdown-email {
+  font-size: 11px;
+  color: var(--gray);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-plan {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(41,121,212,0.2);
+  color: var(--accent);
+}
+
+.dropdown-plan.pro {
+  background: rgba(201,168,76,0.15);
+  color: var(--gold);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  font-size: 13px;
+  color: var(--gray);
+  text-decoration: none;
+  transition: all 0.15s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+
+.dropdown-item:hover { background: rgba(79,172,254,0.06); color: var(--white); }
+
+.dropdown-item.danger { color: #e05a5a; }
+.dropdown-item.danger:hover { background: rgba(224,90,90,0.08); color: #f08080; }
+
+.dropdown-divider { height: 1px; background: rgba(79,172,254,0.08); margin: 4px 0; }
+
+/* ── USAGE BAR (shown in hero when logged in) ── */
+.usage-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(17,34,64,0.7);
+  border: 1px solid rgba(79,172,254,0.15);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 20px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.usage-pill span { color: var(--white); font-weight: 600; }
 
 /* ── HERO ── */
 .hero {
@@ -887,12 +1040,12 @@ footer {
     <div class="nav-logo-icon">🔍</div>
     <span class="nav-logo-text">Fineprint</span>
   </a>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="#how">How it works</a></li>
     <li><a href="#features">Features</a></li>
     <li><a href="#extension">Extension</a></li>
     <li><a href="#pricing">Pricing</a></li>
-    <li><a href="fineprint-auth.html" class="nav-cta">Try Free →</a></li>
+    <li id="nav-auth-item"><a href="fineprint-auth.html" class="nav-cta">Try Free →</a></li>
   </ul>
 </nav>
 
@@ -1157,16 +1310,17 @@ footer {
 </footer>
 
 <script>
-// ── SUPABASE CONFIG — replace with your real values ──
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'
+// ── SUPABASE CONFIG ──────────────────────────────────────
+// ⚠️  Replace these two values with your real Supabase credentials
+const SUPABASE_URL = 'https://rguczlvardgbjsamutrm.supabase.co'
+const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJndWN6bHZhcmRnYmpzYW11dHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1ODM3NDYsImV4cCI6MjA5NTE1OTc0Nn0.9Av83cEUriFk6yR9HPHZzwclTr_GVdnr0a4MQTMHDks
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 let currentMode = 'paste'
 let currentUser = null
 let currentProfile = null
 
-// ── INIT — check if user is logged in ──
+// ── INIT ─────────────────────────────────────────────────
 async function init() {
   const { data: { session } } = await supabase.auth.getSession()
   if (session?.user) {
@@ -1174,21 +1328,78 @@ async function init() {
     const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single()
     currentProfile = data
     updateNavForUser()
+    updateHeroForUser()
   }
 }
 
+// ── NAV: logged-in user menu ──────────────────────────────
 function updateNavForUser() {
   if (!currentUser) return
-  const navRight = document.querySelector('.nav-links')
-  if (navRight) {
-    const lastItem = navRight.querySelector('.nav-cta')?.parentElement
-    if (lastItem) {
-      lastItem.innerHTML = `
-        <a href="fineprint-auth.html" style="color:var(--gray);font-size:14px;">
-          ${currentProfile?.plan === 'pro' || currentProfile?.plan === 'lifetime' ? '✨ Pro' : '👤 Account'}
-        </a>
-      `
-    }
+  const authItem = document.getElementById('nav-auth-item')
+  if (!authItem) return
+
+  const name = currentProfile?.full_name || currentUser.email.split('@')[0]
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+  const email = currentUser.email
+  const isPro = currentProfile?.plan === 'pro' || currentProfile?.plan === 'lifetime'
+  const planLabel = isPro ? 'Pro' : 'Free'
+
+  authItem.innerHTML = `
+    <div class="user-menu" id="user-menu">
+      <button class="user-avatar-btn" onclick="toggleUserMenu()">
+        <div class="user-avatar">${initials}</div>
+        <span>${name.split(' ')[0]}</span>
+        <span class="user-chevron">▼</span>
+      </button>
+      <div class="user-dropdown">
+        <div class="dropdown-header">
+          <div class="dropdown-name">${name}</div>
+          <div class="dropdown-email">${email}</div>
+          <span class="dropdown-plan ${isPro ? 'pro' : ''}">${isPro ? '✨ Pro' : 'Free Plan'}</span>
+        </div>
+        <a class="dropdown-item" href="fineprint-account.html">⚙️ Account Settings</a>
+        ${!isPro ? `<a class="dropdown-item" href="#pricing" onclick="closeUserMenu()">⬆️ Upgrade to Pro</a>` : ''}
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item danger" onclick="handleSignOut()">→ Sign Out</button>
+      </div>
+    </div>
+  `
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('user-menu')
+    if (menu && !menu.contains(e.target)) closeUserMenu()
+  })
+}
+
+function toggleUserMenu() {
+  const menu = document.getElementById('user-menu')
+  if (menu) menu.classList.toggle('open')
+}
+
+function closeUserMenu() {
+  const menu = document.getElementById('user-menu')
+  if (menu) menu.classList.remove('open')
+}
+
+async function handleSignOut() {
+  await supabase.auth.signOut()
+  window.location.reload()
+}
+
+// ── HERO: show usage pill when logged in ─────────────────
+function updateHeroForUser() {
+  if (!currentUser) return
+  const badge = document.querySelector('.hero-badge')
+  if (!badge) return
+  const isPro = currentProfile?.plan === 'pro' || currentProfile?.plan === 'lifetime'
+  const used = currentProfile?.analyses_today || 0
+  const limit = 2
+
+  if (isPro) {
+    badge.innerHTML = '<span class="hero-badge-dot"></span> Pro Plan — Unlimited analyses'
+  } else {
+    badge.innerHTML = `<span class="hero-badge-dot"></span> Free Plan — <span style="color:var(--white);font-weight:700;">${limit - used}</span> of ${limit} analyses left today`
   }
 }
 
