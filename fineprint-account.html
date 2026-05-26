@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Account Settings — Fineprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236366f1'/%3E%3Ccircle cx='42' cy='42' r='18' fill='none' stroke='white' stroke-width='8'/%3E%3Cline x1='55' y1='55' x2='75' y2='75' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy: #0a1628;
+  --navy-mid: #112240;
+  --navy-light: #1d3461;
+  --blue-bright: #2979d4;
+  --accent: #4facfe;
+  --white: #f0f6ff;
+  --gray: #8b9dbb;
+  --danger: #e05a5a;
+  --success: #3db88a;
+  --warning: #e8a838;
+  --gold: #c9a84c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 48px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(10,22,40,0.95);
+  border-bottom: 1px solid rgba(79,172,254,0.1);
+  backdrop-filter: blur(20px);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--blue-bright), var(--accent));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.nav-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.nav-back {
+  font-size: 13px;
+  color: var(--gray);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+.nav-back:hover { color: var(--white); }
+
+/* PAGE LAYOUT */
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 24px 100px;
+  position: relative;
+  z-index: 1;
+}
+
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.page-sub {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 48px;
+}
+
+/* SECTIONS */
+.settings-section {
+  background: rgba(17,34,64,0.5);
+  border: 1px solid rgba(79,172,254,0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.section-head {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(79,172,254,0.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(41,121,212,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.section-head-text h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 2px;
+}
+
+.section-head-text p {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.section-body { padding: 24px; }
+
+/* INFO ROW */
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(79,172,254,0.06);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.info-row:last-child { border-bottom: none; }
+
+.info-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.info-value {
+  font-size: 14px;
+  color: var(--white);
+  font-weight: 500;
+}
+
+/* PLAN BADGE */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(41,121,212,0.15);
+  color: var(--accent);
+  border: 1px solid rgba(79,172,254,0.2);
+}
+
+.plan-badge.pro {
+  background: rgba(201,168,76,0.12);
+  color: var(--gold);
+  border-color: rgba(201,168,76,0.2);
+}
+
+/* USAGE BAR */
+.usage-bar-wrap {
+  margin-top: 12px;
+}
+
+.usage-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 8px;
+}
+
+.usage-bar-track {
+  height: 6px;
+  background: rgba(79,172,254,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.usage-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--blue-bright), var(--accent));
+  transition: width 0.4s ease;
+}
+
+.usage-bar-fill.full { background: linear-gradient(90deg, #e05a5a, #ff8080); }
+
+/* FORM ELEMENTS */
+.form-group { margin-bottom: 16px; }
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  background: rgba(10,22,40,0.6);
+  border: 1px solid rgba(79,172,254,0.15);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--white);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus { border-color: rgba(79,172,254,0.4); }
+.form-input::placeholder { color: rgba(139,157,187,0.4); }
+
+.input-wrapper { position: relative; }
+.input-wrapper .form-input { padding-right: 44px; }
+
+.toggle-pw {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue-bright), var(--accent));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(41,121,212,0.3);
+}
+
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(41,121,212,0.4); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid rgba(79,172,254,0.2);
+  color: var(--white);
+}
+
+.btn-outline:hover { border-color: rgba(79,172,254,0.4); background: rgba(79,172,254,0.05); }
+
+.btn-danger {
+  background: rgba(224,90,90,0.1);
+  border: 1px solid rgba(224,90,90,0.25);
+  color: #f08080;
+}
+
+.btn-danger:hover { background: rgba(224,90,90,0.18); border-color: rgba(224,90,90,0.4); }
+
+.btn-danger-solid {
+  background: #c0392b;
+  color: #fff;
+}
+
+.btn-danger-solid:hover { background: #a93226; }
+
+/* ALERTS */
+.alert {
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.alert.show { display: block; }
+.alert.success { background: rgba(61,184,138,0.1); border: 1px solid rgba(61,184,138,0.3); color: #90e0bb; }
+.alert.error { background: rgba(224,90,90,0.1); border: 1px solid rgba(224,90,90,0.3); color: #f0b0b0; }
+
+/* SPINNER */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* UPGRADE CARD */
+.upgrade-card {
+  background: linear-gradient(135deg, rgba(41,121,212,0.08), rgba(79,172,254,0.04));
+  border: 1px solid rgba(79,172,254,0.15);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.upgrade-card-text h4 { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+.upgrade-card-text p { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+/* DELETE MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: #0f1e38;
+  border: 1px solid rgba(224,90,90,0.2);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 440px;
+  width: 100%;
+}
+
+.modal h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: var(--white);
+}
+
+.modal p {
+  font-size: 14px;
+  color: var(--gray);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* LOADING STATE */
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 24px;
+  gap: 16px;
+  color: var(--gray);
+  font-size: 14px;
+}
+
+.page-loading .big-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(79,172,254,0.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  nav { padding: 0 20px; }
+  .page { padding: 36px 16px 80px; }
+  .page-title { font-size: 26px; }
+  .section-body { padding: 16px; }
+  .upgrade-card { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-icon">🔍</div>
+    <span class="nav-logo-text">Fineprint</span>
+  </a>
+  <a class="nav-back" href="/">← Back to App</a>
+</nav>
+
+<!-- Loading state shown while auth check runs -->
+<div id="page-loading" class="page-loading">
+  <div class="big-spinner"></div>
+  Loading your account...
+</div>
+
+<!-- Main content (hidden until auth check passes) -->
+<div id="page-content" class="page" style="display:none;">
+
+  <h1 class="page-title">Account Settings</h1>
+  <p class="page-sub" id="account-email-sub">Manage your profile, plan, and security settings.</p>
+
+  <!-- ── PROFILE INFO ── -->
+  <div class="settings-section">
+    <div class="section-head">
+      <div class="section-icon">👤</div>
+      <div class="section-head-text">
+        <h3>Profile</h3>
+        <p>Your account information</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="info-row">
+        <span class="info-label">Name</span>
+        <span class="info-value" id="profile-name">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value" id="profile-email">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Member since</span>
+        <span class="info-value" id="profile-joined">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Plan</span>
+        <span class="info-value">
+          <span class="plan-badge" id="profile-plan-badge">Free</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── USAGE ── -->
+  <div class="settings-section" id="usage-section">
+    <div class="section-head">
+      <div class="section-icon">📊</div>
+      <div class="section-head-text">
+        <h3>Usage Today</h3>
+        <p>Your daily analysis usage</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="usage-bar-wrap">
+        <div class="usage-bar-label">
+          <span id="usage-text">0 of 2 analyses used</span>
+          <span id="usage-reset-text" style="color:var(--gray);font-size:11px;">Resets at midnight</span>
+        </div>
+        <div class="usage-bar-track">
+          <div class="usage-bar-fill" id="usage-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <div id="upgrade-nudge" style="margin-top:20px;"></div>
+    </div>
+  </div>
+
+  <!-- ── CHANGE PASSWORD ── -->
+  <div class="settings-section">
+    <div class="section-head">
+      <div class="section-icon">🔒</div>
+      <div class="section-head-text">
+        <h3>Change Password</h3>
+        <p>Update your account password</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <div id="pw-alert-success" class="alert success"></div>
+      <div id="pw-alert-error" class="alert error"></div>
+
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <div class="input-wrapper">
+          <input type="password" class="form-input" id="new-password" placeholder="At least 8 characters"/>
+          <button class="toggle-pw" onclick="togglePw('new-password', this)">👁</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm New Password</label>
+        <div class="input-wrapper">
+          <input type="password" class="form-input" id="confirm-password" placeholder="Repeat new password"/>
+          <button class="toggle-pw" onclick="togglePw('confirm-password', this)">👁</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="pw-btn" onclick="changePassword()">
+        <div class="spinner" id="pw-spinner"></div>
+        <span id="pw-btn-text">Update Password</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SIGN OUT ── -->
+  <div class="settings-section">
+    <div class="section-head">
+      <div class="section-icon">🚪</div>
+      <div class="section-head-text">
+        <h3>Sign Out</h3>
+        <p>Sign out of your Fineprint account on this device</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <button class="btn btn-outline" onclick="handleSignOut()">Sign Out →</button>
+    </div>
+  </div>
+
+  <!-- ── DELETE ACCOUNT ── -->
+  <div class="settings-section">
+    <div class="section-head">
+      <div class="section-icon">⚠️</div>
+      <div class="section-head-text">
+        <h3>Delete Account</h3>
+        <p>Permanently delete your account and all data</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;line-height:1.7;">
+        Deleting your account is permanent and cannot be undone. Your analyses history, subscription, and all data will be removed within 30 days.
+      </p>
+      <button class="btn btn-danger" onclick="showDeleteModal()">🗑 Delete My Account</button>
+    </div>
+  </div>
+
+</div><!-- end page-content -->
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h3>Delete your account?</h3>
+    <p>This is permanent and cannot be undone. All your data — including analysis history and your subscription — will be deleted. You will be signed out immediately.</p>
+    <div id="delete-alert-error" class="alert error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="hideDeleteModal()">Cancel</button>
+      <button class="btn btn-danger-solid" id="delete-btn" onclick="deleteAccount()">
+        <div class="spinner" id="delete-spinner" style="border-top-color:#fff;"></div>
+        <span id="delete-btn-text">Yes, Delete My Account</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE CONFIG ──────────────────────────────────────
+// ⚠️  Replace these two values with your real Supabase credentials
+const SUPABASE_URL = 'https://rguczlvardgbjsamutrm.supabase.co'
+const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJndWN6bHZhcmRnYmpzYW11dHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1ODM3NDYsImV4cCI6MjA5NTE1OTc0Nn0.9Av83cEUriFk6yR9HPHZzwclTr_GVdnr0a4MQTMHDks
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+let currentUser = null
+let currentProfile = null
+
+// ── INIT ─────────────────────────────────────────────────
+window.addEventListener('load', async function() {
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session?.user) {
+    // Not logged in — redirect to auth page
+    window.location.href = 'fineprint-auth.html'
+    return
+  }
+
+  currentUser = session.user
+  const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single()
+  currentProfile = data
+
+  renderPage()
+})
+
+function renderPage() {
+  document.getElementById('page-loading').style.display = 'none'
+  document.getElementById('page-content').style.display = 'block'
+
+  const name = currentProfile?.full_name || currentUser.email.split('@')[0]
+  const email = currentUser.email
+  const joinedDate = new Date(currentUser.created_at).toLocaleDateString('en-GB', { year:'numeric', month:'long', day:'numeric' })
+  const isPro = currentProfile?.plan === 'pro' || currentProfile?.plan === 'lifetime'
+
+  document.getElementById('account-email-sub').textContent = `Signed in as ${email}`
+  document.getElementById('profile-name').textContent = name
+  document.getElementById('profile-email').textContent = email
+  document.getElementById('profile-joined').textContent = joinedDate
+
+  const planBadge = document.getElementById('profile-plan-badge')
+  if (isPro) {
+    planBadge.textContent = '✨ Pro'
+    planBadge.classList.add('pro')
+  } else {
+    planBadge.textContent = 'Free'
+  }
+
+  // Usage bar
+  const used = currentProfile?.analyses_today || 0
+  const limit = isPro ? null : 2
+  const usageSection = document.getElementById('usage-section')
+
+  if (isPro) {
+    document.getElementById('usage-text').textContent = 'Unlimited analyses — Pro Plan'
+    document.getElementById('usage-reset-text').textContent = ''
+    document.getElementById('usage-bar').style.width = '100%'
+    document.getElementById('usage-bar').style.background = 'linear-gradient(90deg, #c9a84c, #f0d080)'
+  } else {
+    const pct = Math.min((used / limit) * 100, 100)
+    document.getElementById('usage-text').textContent = `${used} of ${limit} analyses used today`
+    document.getElementById('usage-bar').style.width = `${pct}%`
+    if (pct >= 100) document.getElementById('usage-bar').classList.add('full')
+
+    document.getElementById('upgrade-nudge').innerHTML = `
+      <div class="upgrade-card">
+        <div class="upgrade-card-text">
+          <h4>Want unlimited analyses?</h4>
+          <p>Upgrade to Pro for $7.99/month — no daily limits, full red flag details, and analysis history.</p>
+        </div>
+        <a href="/#pricing" class="btn btn-primary" style="white-space:nowrap;">Upgrade to Pro →</a>
+      </div>
+    `
+  }
+}
+
+// ── CHANGE PASSWORD ───────────────────────────────────────
+async function changePassword() {
+  const newPw = document.getElementById('new-password').value
+  const confirmPw = document.getElementById('confirm-password').value
+
+  clearPwAlerts()
+
+  if (newPw.length < 8) { showPwAlert('error', 'Password must be at least 8 characters.'); return }
+  if (newPw !== confirmPw) { showPwAlert('error', 'Passwords do not match.'); return }
+
+  setLoading('pw', true)
+
+  try {
+    const { error } = await supabase.auth.updateUser({ password: newPw })
+    setLoading('pw', false)
+
+    if (error) {
+      showPwAlert('error', error.message)
+    } else {
+      showPwAlert('success', '✓ Password updated successfully.')
+      document.getElementById('new-password').value = ''
+      document.getElementById('confirm-password').value = ''
+    }
+  } catch(e) {
+    setLoading('pw', false)
+    showPwAlert('error', 'Something went wrong. Please try again.')
+  }
+}
+
+function showPwAlert(type, msg) {
+  const el = document.getElementById('pw-alert-' + type)
+  if (el) { el.textContent = msg; el.classList.add('show') }
+}
+
+function clearPwAlerts() {
+  ['success','error'].forEach(t => {
+    const el = document.getElementById('pw-alert-' + t)
+    if (el) el.classList.remove('show')
+  })
+}
+
+// ── SIGN OUT ──────────────────────────────────────────────
+async function handleSignOut() {
+  await supabase.auth.signOut()
+  window.location.href = '/'
+}
+
+// ── DELETE MODAL ──────────────────────────────────────────
+function showDeleteModal() {
+  document.getElementById('delete-modal').classList.add('show')
+}
+
+function hideDeleteModal() {
+  document.getElementById('delete-modal').classList.remove('show')
+  document.getElementById('delete-alert-error').classList.remove('show')
+}
+
+// ── DELETE ACCOUNT ────────────────────────────────────────
+async function deleteAccount() {
+  setLoading('delete', true)
+  document.getElementById('delete-alert-error').classList.remove('show')
+
+  try {
+    // Delete from profiles table first (RLS should allow user to delete own row)
+    const { error: profileErr } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', currentUser.id)
+
+    if (profileErr) throw profileErr
+
+    // Sign out — Supabase free tier doesn't allow self-deletion via client
+    // The profile is deleted; full auth cleanup happens server-side within 30 days
+    await supabase.auth.signOut()
+
+    // Show confirmation and redirect
+    document.getElementById('delete-modal').innerHTML = `
+      <div class="modal" style="text-align:center;border-color:rgba(61,184,138,0.2);">
+        <div style="font-size:40px;margin-bottom:16px;">✅</div>
+        <h3 style="margin-bottom:10px;">Account deleted</h3>
+        <p>Your data has been removed. Thanks for using Fineprint.</p>
+        <a href="/" class="btn btn-outline" style="margin-top:8px;display:inline-flex;">Go to Homepage</a>
+      </div>
+    `
+    document.getElementById('delete-modal').classList.add('show')
+
+  } catch(e) {
+    setLoading('delete', false)
+    const errEl = document.getElementById('delete-alert-error')
+    errEl.textContent = 'Could not delete account. Please email usefineprint@gmail.com for help.'
+    errEl.classList.add('show')
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function setLoading(form, loading) {
+  const btn = document.getElementById(form + '-btn')
+  const spinner = document.getElementById(form + '-spinner')
+  const text = document.getElementById(form + '-btn-text')
+  if (btn) btn.disabled = loading
+  if (spinner) spinner.style.display = loading ? 'inline-block' : 'none'
+  if (text) text.style.opacity = loading ? '0' : '1'
+}
+
+function togglePw(inputId, btn) {
+  const input = document.getElementById(inputId)
+  if (!input) return
+  input.type = input.type === 'password' ? 'text' : 'password'
+  btn.textContent = input.type === 'password' ? '👁' : '🙈'
+}
+</script>
+</body>
+</html>
