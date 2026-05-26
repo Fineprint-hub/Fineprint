@@ -1032,6 +1032,7 @@ footer {
 }
 
 @media (max-width: 600px) {
+  .features-header { grid-template-columns: 1fr !important; gap: 16px !important; margin-bottom: 36px !important; }
   /* Extension email signup — stack vertically on mobile */
   div[style*="display:flex;gap:8px"] {
     flex-direction: column !important;
@@ -1185,7 +1186,7 @@ footer {
 
 <!-- FEATURES -->
 <section id="features">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:60px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:60px;" class="features-header">
     <div>
       <span class="section-label">What you get</span>
       <h2 class="section-title">Everything you need to make an informed decision</h2>
