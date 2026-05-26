@@ -1322,6 +1322,7 @@ let currentProfile = null
 
 // ── INIT ─────────────────────────────────────────────────
 async function init() {
+  // Catch session immediately
   const { data: { session } } = await supabase.auth.getSession()
   if (session?.user) {
     currentUser = session.user
@@ -1330,6 +1331,17 @@ async function init() {
     updateNavForUser()
     updateHeroForUser()
   }
+
+  // Also catch session coming in after redirect
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if ((event === 'SIGNED_IN') && session?.user && !currentUser) {
+      currentUser = session.user
+      const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single()
+      currentProfile = data
+      updateNavForUser()
+      updateHeroForUser()
+    }
+  })
 }
 
 // ── NAV: logged-in user menu ──────────────────────────────
