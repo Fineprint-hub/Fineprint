@@ -1030,6 +1030,33 @@ footer {
   .price-card.popular { transform: none; }
   footer { padding: 32px 20px; flex-direction: column; text-align: center; }
 }
+
+@media (max-width: 600px) {
+  /* Extension email signup — stack vertically on mobile */
+  div[style*="display:flex;gap:8px"] {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  div[style*="display:flex;gap:8px"] input {
+    width: 100% !important;
+  }
+  div[style*="display:flex;gap:8px"] button {
+    width: 100% !important;
+    text-align: center !important;
+  }
+  /* Extension section wrapper padding */
+  div#extension {
+    padding: 0 20px 60px !important;
+  }
+  /* Hero text sizing */
+  .hero h1 { font-size: 36px !important; }
+  .hero-sub { font-size: 16px !important; }
+  /* Tool section textarea */
+  .tool-section textarea { min-height: 120px; }
+  /* Pricing cards */
+  .pricing-grid { gap: 12px; }
+  .price-card { padding: 24px 20px; }
+}
 </style>
 </head>
 <body>
@@ -1045,7 +1072,7 @@ footer {
     <li><a href="#features">Features</a></li>
     <li><a href="#extension">Extension</a></li>
     <li><a href="#pricing">Pricing</a></li>
-    <li id="nav-auth-item"><a href="fineprint-auth.html" class="nav-cta">Try Free →</a></li> 
+    <li id="nav-auth-item"><a href="fineprint-auth.html" class="nav-cta">Try Free →</a></li>
   </ul>
 </nav>
 
