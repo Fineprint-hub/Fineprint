@@ -764,7 +764,7 @@ nav {
         <div class="success-icon">✅</div>
         <h3>You're all set!</h3>
         <p id="success-message">Your account has been created. Redirecting you to the app...</p>
-        <button class="submit-btn" onclick="window.location.href='/'" style="max-width:240px;margin:0 auto;">Go to Fineprint →</button>
+        <button class="submit-btn" onclick="window.location.href='/dashboard.html'" style="max-width:240px;margin:0 auto;">Go to Fineprint →</button>
       </div>
 
     </div>
@@ -773,8 +773,8 @@ nav {
 
 <script>
 // ── CONFIG ──────────────────────────────────────────
-var SUPABASE_URL = 'https://rguczlvardgbjsamutrm.supabase.co';
-var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJndWN6bHZhcmRnYmpzYW11dHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1ODM3NDYsImV4cCI6MjA5NTE1OTc0Nn0.9Av83cEUriFk6yR9HPHZzwclTr_GVdnr0a4MQTMHDks';
+var SUPABASE_URL = 'YOUR_SUPABASE_URL';
+var SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 var supabaseClient = null;
 
 var PAYMENT_LINKS = {
@@ -790,7 +790,7 @@ window.addEventListener('load', function() {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     supabaseClient.auth.getSession().then(function(result) {
       if (result.data && result.data.session && result.data.session.user) {
-        window.location.href = '/';
+        window.location.href = '/dashboard.html';
       }
     });
   } catch(e) {
@@ -1004,7 +1004,7 @@ async function handleSignup() {
     }
 
     showSuccess('Account created! Welcome to Fineprint.');
-    setTimeout(function() { window.location.href = '/'; }, 2000);
+    setTimeout(function() { window.location.href = '/dashboard.html'; }, 2000);
 
   } catch(e) {
     setLoading('signup', false);
@@ -1039,7 +1039,7 @@ async function handleLogin() {
     }
 
     showSuccess('Welcome back! Taking you to the app...');
-    setTimeout(function() { window.location.href = '/'; }, 1500);
+    setTimeout(function() { window.location.href = '/dashboard.html'; }, 1500);
 
   } catch(e) {
     setLoading('login', false);

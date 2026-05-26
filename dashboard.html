@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard — Fineprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236366f1'/%3E%3Ccircle cx='42' cy='42' r='18' fill='none' stroke='white' stroke-width='8'/%3E%3Cline x1='55' y1='55' x2='75' y2='75' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy: #080f1e;
+  --navy-card: #0e1a30;
+  --navy-border: rgba(79,172,254,0.1);
+  --blue: #2979d4;
+  --accent: #4facfe;
+  --white: #f0f6ff;
+  --gray: #8b9dbb;
+  --gray-light: #b8c8de;
+  --success: #3db88a;
+  --warning: #e8a838;
+  --danger: #e05a5a;
+  --gold: #c9a84c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* BACKGROUND GLOW */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 600px;
+  background: radial-gradient(ellipse, rgba(41,121,212,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(8,15,30,0.9);
+  border-bottom: 1px solid var(--navy-border);
+  backdrop-filter: blur(20px);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+
+.nav-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px; font-weight: 700;
+  color: var(--white);
+}
+
+.nav-right {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.nav-user {
+  display: flex; align-items: center; gap: 8px;
+  position: relative;
+}
+
+.nav-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  cursor: pointer;
+  border: 2px solid rgba(79,172,254,0.2);
+}
+
+.nav-username {
+  font-size: 13px; color: var(--gray-light);
+  cursor: pointer;
+}
+
+.nav-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px); right: 0;
+  background: #0f1e38;
+  border: 1px solid var(--navy-border);
+  border-radius: 12px;
+  min-width: 200px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  overflow: hidden;
+  z-index: 200;
+}
+
+.nav-user.open .nav-dropdown { display: block; }
+
+.dropdown-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px;
+  font-size: 13px; color: var(--gray);
+  text-decoration: none;
+  transition: all 0.15s;
+  cursor: pointer;
+  border: none; background: transparent;
+  width: 100%; font-family: inherit; text-align: left;
+}
+
+.dropdown-item:hover { background: rgba(79,172,254,0.06); color: var(--white); }
+.dropdown-divider { height: 1px; background: var(--navy-border); }
+.dropdown-item.danger { color: #e05a5a; }
+.dropdown-item.danger:hover { background: rgba(224,90,90,0.08); }
+
+/* LAYOUT */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+  position: relative; z-index: 1;
+}
+
+/* WELCOME HEADER */
+.welcome-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.welcome-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.welcome-text p { font-size: 14px; color: var(--gray); }
+
+.welcome-time {
+  font-size: 13px; color: var(--gray);
+  background: rgba(79,172,254,0.06);
+  border: 1px solid var(--navy-border);
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+
+/* STAT CARDS ROW */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 14px;
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+
+.stat-card:hover { border-color: rgba(79,172,254,0.2); }
+
+.stat-label {
+  font-size: 11px; font-weight: 600;
+  color: var(--gray);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.stat-value {
+  font-size: 28px; font-weight: 700;
+  color: var(--white);
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 4px;
+}
+
+.stat-sub { font-size: 12px; color: var(--gray); }
+
+.stat-bar-track {
+  height: 4px;
+  background: rgba(79,172,254,0.08);
+  border-radius: 2px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--accent));
+  transition: width 0.6s ease;
+}
+
+.stat-bar-fill.full { background: linear-gradient(90deg, #e05a5a, #ff8080); }
+.stat-bar-fill.pro { background: linear-gradient(90deg, #c9a84c, #f0d080); }
+
+/* MAIN GRID */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .main-grid { grid-template-columns: 1fr; }
+}
+
+/* ANALYZER CARD */
+.analyzer-card {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--navy-border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.card-title {
+  font-size: 15px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.card-body { padding: 24px; }
+
+/* TABS */
+.mode-tabs {
+  display: flex; gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid var(--navy-border);
+  background: transparent;
+  color: var(--gray);
+  font-size: 13px; font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+.mode-tab.active {
+  background: rgba(41,121,212,0.15);
+  border-color: rgba(79,172,254,0.3);
+  color: var(--white);
+}
+
+.mode-tab:hover:not(.active) { border-color: rgba(79,172,254,0.2); color: var(--gray-light); }
+
+/* TEXTAREA */
+.analyze-textarea {
+  width: 100%;
+  background: rgba(8,15,30,0.6);
+  border: 1px solid var(--navy-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--white);
+  font-size: 14px; font-family: inherit;
+  resize: vertical; min-height: 160px;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.6;
+}
+
+.analyze-textarea:focus { border-color: rgba(79,172,254,0.3); }
+.analyze-textarea::placeholder { color: rgba(139,157,187,0.35); }
+
+.url-input {
+  width: 100%;
+  background: rgba(8,15,30,0.6);
+  border: 1px solid var(--navy-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--white);
+  font-size: 14px; font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.url-input:focus { border-color: rgba(79,172,254,0.3); }
+.url-input::placeholder { color: rgba(139,157,187,0.35); }
+
+.char-count {
+  font-size: 11px; color: var(--gray);
+  text-align: right; margin-top: 6px;
+}
+
+/* ANALYZE BUTTON */
+.analyze-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  color: #fff;
+  font-size: 15px; font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(41,121,212,0.3);
+}
+
+.analyze-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(41,121,212,0.4); }
+.analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* SPINNER */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* RESULTS */
+.results-area {
+  margin-top: 20px;
+  display: none;
+}
+
+.results-area.show { display: block; }
+
+.result-verdict {
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; font-weight: 500;
+}
+
+.result-verdict.high { background: rgba(224,90,90,0.1); border: 1px solid rgba(224,90,90,0.25); color: #f0b0b0; }
+.result-verdict.medium { background: rgba(232,168,56,0.1); border: 1px solid rgba(232,168,56,0.25); color: #f0d090; }
+.result-verdict.low { background: rgba(61,184,138,0.1); border: 1px solid rgba(61,184,138,0.25); color: #90e0bb; }
+
+.verdict-icon { font-size: 22px; flex-shrink: 0; }
+.verdict-text h3 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.verdict-text p { font-size: 12px; opacity: 0.8; }
+
+.result-sections {
+  display: grid; gap: 12px;
+}
+
+.result-section {
+  background: rgba(8,15,30,0.5);
+  border: 1px solid var(--navy-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.result-section-title {
+  font-size: 11px; font-weight: 600;
+  color: var(--gray);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.result-section p { font-size: 13px; color: var(--gray-light); line-height: 1.7; }
+
+.flag-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(79,172,254,0.05);
+  font-size: 13px; color: var(--gray-light);
+}
+
+.flag-item:last-child { border-bottom: none; }
+.flag-dot { color: #e05a5a; flex-shrink: 0; margin-top: 2px; }
+
+.key-point {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 6px 0;
+  font-size: 13px; color: var(--gray-light);
+}
+
+.key-dot { color: var(--accent); flex-shrink: 0; }
+
+/* SIDEBAR */
+.sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+/* UPGRADE CARD */
+.upgrade-card {
+  background: linear-gradient(135deg, rgba(41,121,212,0.1), rgba(79,172,254,0.05));
+  border: 1px solid rgba(79,172,254,0.15);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.upgrade-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px; margin-bottom: 8px;
+}
+
+.upgrade-card p { font-size: 13px; color: var(--gray); line-height: 1.6; margin-bottom: 16px; }
+
+.upgrade-features { margin-bottom: 16px; }
+
+.upgrade-feature {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--gray-light);
+  padding: 4px 0;
+}
+
+.upgrade-feature span:first-child { color: var(--success); font-size: 12px; }
+
+.upgrade-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  color: #fff;
+  font-size: 14px; font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(41,121,212,0.3);
+}
+
+.upgrade-btn:hover { transform: translateY(-1px); }
+
+/* HISTORY CARD */
+.history-card {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.history-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--navy-border);
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.history-body { padding: 8px 0; }
+
+.history-item {
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(79,172,254,0.04);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: rgba(79,172,254,0.04); }
+
+.history-item-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--white);
+  margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.history-item-meta {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--gray);
+}
+
+.risk-pill {
+  padding: 2px 8px; border-radius: 10px;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.risk-pill.high { background: rgba(224,90,90,0.15); color: #f08080; }
+.risk-pill.medium { background: rgba(232,168,56,0.15); color: #f0c060; }
+.risk-pill.low { background: rgba(61,184,138,0.15); color: #70d0a0; }
+
+.history-empty {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--gray);
+  font-size: 13px;
+}
+
+.history-empty .empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+/* TIPS CARD */
+.tips-card {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.tips-card h3 {
+  font-size: 13px; font-weight: 600; color: var(--gray);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.tip-item {
+  display: flex; gap: 10px;
+  margin-bottom: 12px;
+  font-size: 13px; color: var(--gray-light);
+  line-height: 1.5;
+}
+
+.tip-item:last-child { margin-bottom: 0; }
+.tip-num {
+  width: 20px; height: 20px; flex-shrink: 0;
+  background: rgba(41,121,212,0.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: var(--accent);
+}
+
+/* LOADING PAGE */
+.page-loading {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh; gap: 16px;
+  color: var(--gray); font-size: 14px;
+}
+
+.big-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(79,172,254,0.1);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* LIMIT WARNING */
+.limit-warning {
+  background: rgba(232,168,56,0.08);
+  border: 1px solid rgba(232,168,56,0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px; color: #f0c060;
+  margin-top: 12px;
+  display: none;
+  align-items: center; gap: 8px;
+}
+
+.limit-warning.show { display: flex; }
+
+/* PLAN BADGE */
+.plan-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 10px;
+  font-size: 11px; font-weight: 600;
+  background: rgba(41,121,212,0.15);
+  color: var(--accent);
+  border: 1px solid rgba(79,172,254,0.2);
+}
+
+.plan-badge.pro {
+  background: rgba(201,168,76,0.12);
+  color: var(--gold);
+  border-color: rgba(201,168,76,0.2);
+}
+
+/* FADE IN */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up { animation: fadeUp 0.5s ease both; }
+.fade-up-2 { animation: fadeUp 0.5s 0.1s ease both; }
+.fade-up-3 { animation: fadeUp 0.5s 0.2s ease both; }
+
+@media (max-width: 600px) {
+  nav { padding: 0 16px; }
+  .page { padding: 24px 16px 60px; }
+  .welcome-text h1 { font-size: 22px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="page-loading" class="page-loading">
+  <div class="big-spinner"></div>
+  Setting up your dashboard...
+</div>
+
+<div id="app" style="display:none;">
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-icon">🔍</div>
+    <span class="nav-logo-text">Fineprint</span>
+  </a>
+  <div class="nav-right">
+    <div class="nav-user" id="nav-user">
+      <div class="nav-avatar" id="nav-avatar" onclick="toggleDropdown()">FP</div>
+      <span class="nav-username" id="nav-username" onclick="toggleDropdown()">Account ▾</span>
+      <div class="nav-dropdown">
+        <a class="dropdown-item" href="fineprint-account.html">⚙️ Settings</a>
+        <a class="dropdown-item" href="/">🏠 Home</a>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item danger" onclick="signOut()">→ Sign Out</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- WELCOME -->
+  <div class="welcome-row fade-up">
+    <div class="welcome-text">
+      <h1 id="welcome-title">Welcome back 👋</h1>
+      <p id="welcome-sub">Ready to decode your next agreement?</p>
+    </div>
+    <div class="welcome-time" id="welcome-time"></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row fade-up-2">
+    <div class="stat-card">
+      <div class="stat-label">📊 Plan</div>
+      <div class="stat-value" id="stat-plan">Free</div>
+      <div class="stat-sub" id="stat-plan-sub">2 analyses per day</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🔍 Analyses Today</div>
+      <div class="stat-value" id="stat-used">0</div>
+      <div class="stat-sub" id="stat-remaining">2 remaining</div>
+      <div class="stat-bar-track">
+        <div class="stat-bar-fill" id="stat-bar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📋 Total Analyses</div>
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-sub">All time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🛡️ Status</div>
+      <div class="stat-value" style="font-size:20px;">Active</div>
+      <div class="stat-sub">Account in good standing</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid fade-up-3">
+
+    <!-- ANALYZER -->
+    <div class="analyzer-card">
+      <div class="card-head">
+        <div class="card-title">🔍 Decode a T&C Agreement</div>
+        <span class="plan-badge" id="analyzer-plan-badge">Free</span>
+      </div>
+      <div class="card-body">
+        <div class="mode-tabs">
+          <button class="mode-tab active" id="tab-paste" onclick="switchMode('paste')">📋 Paste Text</button>
+          <button class="mode-tab" id="tab-url" onclick="switchMode('url')">🔗 Enter URL</button>
+        </div>
+
+        <div id="paste-input">
+          <textarea class="analyze-textarea" id="tc-text" placeholder="Paste the full Terms & Conditions text here..." oninput="updateCharCount()"></textarea>
+          <div class="char-count"><span id="char-count">0</span> characters</div>
+        </div>
+
+        <div id="url-input" style="display:none;">
+          <input type="url" class="url-input" id="tc-url" placeholder="https://example.com/terms"/>
+          <div class="char-count" style="margin-top:8px;">e.g. twitter.com/tos — paste the direct T&C page URL</div>
+        </div>
+
+        <div class="limit-warning" id="limit-warning">
+          ⚠️ You've used all your free analyses today. <a href="#" onclick="scrollToUpgrade()" style="color:#f0d080;margin-left:4px;">Upgrade to Pro →</a>
+        </div>
+
+        <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">
+          <div class="spinner" id="analyze-spinner"></div>
+          <span id="analyze-btn-text">🔍 Decode This Agreement</span>
+        </button>
+
+        <!-- RESULTS -->
+        <div class="results-area" id="results-area">
+          <div class="result-verdict" id="result-verdict">
+            <div class="verdict-icon" id="verdict-icon">🟡</div>
+            <div class="verdict-text">
+              <h3 id="verdict-title">Medium Risk</h3>
+              <p id="verdict-sub">Review carefully before agreeing</p>
+            </div>
+          </div>
+
+          <div class="result-sections">
+            <div class="result-section">
+              <div class="result-section-title">💬 Plain English Summary</div>
+              <p id="result-summary">—</p>
+            </div>
+            <div class="result-section">
+              <div class="result-section-title">⚠️ Red Flags</div>
+              <div id="result-flags">—</div>
+            </div>
+            <div class="result-section">
+              <div class="result-section-title">📋 Key Points</div>
+              <div id="result-keypoints">—</div>
+            </div>
+            <div class="result-section">
+              <div class="result-section-title">⚖️ Final Verdict</div>
+              <p id="result-final">—</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- UPGRADE (shown for free users) -->
+      <div class="upgrade-card" id="upgrade-card">
+        <h3>⚡ Upgrade to Pro</h3>
+        <p>Remove daily limits and unlock full analysis history.</p>
+        <div class="upgrade-features">
+          <div class="upgrade-feature"><span>✓</span> Unlimited analyses per day</div>
+          <div class="upgrade-feature"><span>✓</span> Full analysis history</div>
+          <div class="upgrade-feature"><span>✓</span> PDF export</div>
+          <div class="upgrade-feature"><span>✓</span> Priority support</div>
+        </div>
+        <button class="upgrade-btn" onclick="window.location.href='/#pricing'">Upgrade — $7.99/mo →</button>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="history-card">
+        <div class="history-head">🕐 Recent Analyses</div>
+        <div class="history-body" id="history-body">
+          <div class="history-empty">
+            <div class="empty-icon">📭</div>
+            No analyses yet — decode your first agreement above!
+          </div>
+        </div>
+      </div>
+
+      <!-- TIPS -->
+      <div class="tips-card">
+        <h3>💡 Pro Tips</h3>
+        <div class="tip-item">
+          <div class="tip-num">1</div>
+          <span>Paste the full T&C text for the most accurate analysis — not just a section.</span>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">2</div>
+          <span>Use the direct T&C page URL (e.g. twitter.com/tos) not the homepage.</span>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">3</div>
+          <span>Pay special attention to red flags — these are the clauses that could hurt you.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── SUPABASE CONFIG ──────────────────────────────────────
+const SUPABASE_URL = 'https://rguczlvardgbjsamutrm.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJndWN6bHZhcmRnYmpzYW11dHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1ODM3NDYsImV4cCI6MjA5NTE1OTc0Nn0.9Av83cEUriFk6yR9HPHZzwclTr_GVdnr0a4MQTMHDks'
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze`
+
+let currentUser = null
+let currentProfile = null
+let currentMode = 'paste'
+
+// ── INIT ─────────────────────────────────────────────────
+window.addEventListener('load', async function() {
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session?.user) {
+    window.location.href = 'fineprint-auth.html'
+    return
+  }
+
+  currentUser = session.user
+  const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single()
+  currentProfile = data
+
+  renderDashboard()
+  loadHistory()
+  setWelcomeTime()
+})
+
+// ── RENDER ────────────────────────────────────────────────
+function renderDashboard() {
+  document.getElementById('page-loading').style.display = 'none'
+  document.getElementById('app').style.display = 'block'
+
+  const name = currentProfile?.full_name || currentUser.email.split('@')[0]
+  const firstName = name.split(' ')[0]
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+  const isPro = currentProfile?.plan === 'pro' || currentProfile?.plan === 'lifetime'
+  const used = currentProfile?.analyses_today || 0
+  const total = currentProfile?.total_analyses || 0
+  const limit = 2
+
+  // Nav
+  document.getElementById('nav-avatar').textContent = initials
+  document.getElementById('nav-username').textContent = `${firstName} ▾`
+
+  // Welcome
+  document.getElementById('welcome-title').textContent = `Welcome back, ${firstName} 👋`
+
+  // Stats
+  document.getElementById('stat-plan').textContent = isPro ? 'Pro ✨' : 'Free'
+  document.getElementById('stat-plan-sub').textContent = isPro ? 'Unlimited analyses' : '2 analyses per day'
+  document.getElementById('stat-used').textContent = used
+  document.getElementById('stat-total').textContent = total
+
+  if (isPro) {
+    document.getElementById('stat-remaining').textContent = 'Unlimited'
+    document.getElementById('stat-bar').style.width = '100%'
+    document.getElementById('stat-bar').classList.add('pro')
+    document.getElementById('upgrade-card').style.display = 'none'
+    document.getElementById('analyzer-plan-badge').textContent = '✨ Pro'
+    document.getElementById('analyzer-plan-badge').classList.add('pro')
+  } else {
+    const remaining = Math.max(0, limit - used)
+    document.getElementById('stat-remaining').textContent = `${remaining} remaining today`
+    const pct = Math.min((used / limit) * 100, 100)
+    document.getElementById('stat-bar').style.width = `${pct}%`
+    if (pct >= 100) {
+      document.getElementById('stat-bar').classList.add('full')
+      document.getElementById('analyze-btn').disabled = true
+      document.getElementById('limit-warning').classList.add('show')
+    }
+  }
+}
+
+// ── TIME GREETING ─────────────────────────────────────────
+function setWelcomeTime() {
+  const now = new Date()
+  const hour = now.getHours()
+  let greeting = hour < 12 ? '🌅 Good morning' : hour < 17 ? '☀️ Good afternoon' : '🌙 Good evening'
+  const dateStr = now.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' })
+  document.getElementById('welcome-time').textContent = `${greeting} · ${dateStr}`
+  document.getElementById('welcome-sub').textContent = greeting.includes('morning')
+    ? 'Start your day knowing what you\'re signing.'
+    : greeting.includes('afternoon')
+    ? 'Ready to decode your next agreement?'
+    : 'Evening — let\'s check what you\'re agreeing to.'
+}
+
+// ── MODE SWITCH ───────────────────────────────────────────
+function switchMode(mode) {
+  currentMode = mode
+  document.getElementById('tab-paste').classList.toggle('active', mode === 'paste')
+  document.getElementById('tab-url').classList.toggle('active', mode === 'url')
+  document.getElementById('paste-input').style.display = mode === 'paste' ? 'block' : 'none'
+  document.getElementById('url-input').style.display = mode === 'url' ? 'block' : 'none'
+  document.getElementById('results-area').classList.remove('show')
+}
+
+function updateCharCount() {
+  const len = document.getElementById('tc-text').value.length
+  document.getElementById('char-count').textContent = len.toLocaleString()
+}
+
+// ── ANALYSIS ──────────────────────────────────────────────
+async function runAnalysis() {
+  const isPro = currentProfile?.plan === 'pro' || currentProfile?.plan === 'lifetime'
+  const used = currentProfile?.analyses_today || 0
+
+  if (!isPro && used >= 2) {
+    document.getElementById('limit-warning').classList.add('show')
+    return
+  }
+
+  const text = currentMode === 'paste'
+    ? document.getElementById('tc-text').value.trim()
+    : document.getElementById('tc-url').value.trim()
+
+  if (!text || text.length < 50) {
+    alert('Please paste some T&C text or enter a URL first.')
+    return
+  }
+
+  setAnalyzing(true)
+  document.getElementById('results-area').classList.remove('show')
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(EDGE_FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ content: text, type: currentMode })
+    })
+
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || 'Analysis failed')
+    }
+
+    const result = await res.json()
+    renderResults(result)
+
+    // Update local usage count
+    currentProfile.analyses_today = (currentProfile.analyses_today || 0) + 1
+    currentProfile.total_analyses = (currentProfile.total_analyses || 0) + 1
+    document.getElementById('stat-used').textContent = currentProfile.analyses_today
+    document.getElementById('stat-total').textContent = currentProfile.total_analyses
+
+    if (!isPro) {
+      const remaining = Math.max(0, 2 - currentProfile.analyses_today)
+      document.getElementById('stat-remaining').textContent = `${remaining} remaining today`
+      const pct = Math.min((currentProfile.analyses_today / 2) * 100, 100)
+      document.getElementById('stat-bar').style.width = `${pct}%`
+      if (currentProfile.analyses_today >= 2) {
+        document.getElementById('stat-bar').classList.add('full')
+        document.getElementById('analyze-btn').disabled = true
+        document.getElementById('limit-warning').classList.add('show')
+      }
+    }
+
+    // Add to history UI immediately
+    addToHistoryUI(result, text)
+
+  } catch(e) {
+    alert('Error: ' + (e.message || 'Something went wrong. Please try again.'))
+  } finally {
+    setAnalyzing(false)
+  }
+}
+
+function renderResults(r) {
+  const risk = (r.risk_level || 'medium').toLowerCase()
+  const riskConfig = {
+    high: { icon: '🔴', label: 'High Risk', sub: 'Be very careful before agreeing', cls: 'high' },
+    medium: { icon: '🟡', label: 'Medium Risk', sub: 'Review carefully before agreeing', cls: 'medium' },
+    low: { icon: '🟢', label: 'Low Risk', sub: 'Generally safe — standard terms', cls: 'low' }
+  }
+  const cfg = riskConfig[risk] || riskConfig.medium
+
+  const verdict = document.getElementById('result-verdict')
+  verdict.className = `result-verdict ${cfg.cls}`
+  document.getElementById('verdict-icon').textContent = cfg.icon
+  document.getElementById('verdict-title').textContent = cfg.label
+  document.getElementById('verdict-sub').textContent = cfg.sub
+
+  document.getElementById('result-summary').textContent = r.summary || '—'
+
+  const flags = r.red_flags || []
+  document.getElementById('result-flags').innerHTML = flags.length
+    ? flags.map(f => `<div class="flag-item"><span class="flag-dot">●</span><span>${f}</span></div>`).join('')
+    : '<p>No major red flags detected.</p>'
+
+  const points = r.key_points || []
+  document.getElementById('result-keypoints').innerHTML = points.length
+    ? points.map(p => `<div class="key-point"><span class="key-dot">●</span><span>${p}</span></div>`).join('')
+    : '<p>No key points extracted.</p>'
+
+  document.getElementById('result-final').textContent = r.verdict || '—'
+  document.getElementById('results-area').classList.add('show')
+  document.getElementById('results-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+}
+
+// ── HISTORY ───────────────────────────────────────────────
+async function loadHistory() {
+  try {
+    const { data, error } = await supabase
+      .from('analyses')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(8)
+
+    if (error || !data || data.length === 0) return
+
+    const body = document.getElementById('history-body')
+    body.innerHTML = data.map(item => {
+      const risk = (item.risk_level || 'medium').toLowerCase()
+      const date = new Date(item.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short' })
+      const label = item.title || item.url || 'Pasted document'
+      return `
+        <div class="history-item">
+          <div class="history-item-name">${label}</div>
+          <div class="history-item-meta">
+            <span class="risk-pill ${risk}">${risk}</span>
+            <span>${date}</span>
+          </div>
+        </div>
+      `
+    }).join('')
+  } catch(e) {
+    // History not critical — fail silently
+  }
+}
+
+function addToHistoryUI(result, text) {
+  const body = document.getElementById('history-body')
+  const risk = (result.risk_level || 'medium').toLowerCase()
+  const date = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short' })
+  const label = text.length > 40 ? text.substring(0, 40) + '...' : text
+  const item = document.createElement('div')
+  item.className = 'history-item'
+  item.innerHTML = `
+    <div class="history-item-name">${label}</div>
+    <div class="history-item-meta">
+      <span class="risk-pill ${risk}">${risk}</span>
+      <span>${date}</span>
+    </div>
+  `
+  // Remove empty state if present
+  const empty = body.querySelector('.history-empty')
+  if (empty) empty.remove()
+  body.insertBefore(item, body.firstChild)
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function setAnalyzing(loading) {
+  const btn = document.getElementById('analyze-btn')
+  const spinner = document.getElementById('analyze-spinner')
+  const text = document.getElementById('analyze-btn-text')
+  btn.disabled = loading
+  spinner.style.display = loading ? 'inline-block' : 'none'
+  text.textContent = loading ? 'Analyzing...' : '🔍 Decode This Agreement'
+}
+
+function toggleDropdown() {
+  document.getElementById('nav-user').classList.toggle('open')
+}
+
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('nav-user')
+  if (menu && !menu.contains(e.target)) menu.classList.remove('open')
+})
+
+async function signOut() {
+  await supabase.auth.signOut()
+  window.location.href = '/'
+}
+
+function scrollToUpgrade() {
+  document.getElementById('upgrade-card').scrollIntoView({ behavior: 'smooth' })
+}
+</script>
+</body>
+</html>
