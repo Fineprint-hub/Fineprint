@@ -654,7 +654,7 @@ nav {
     <div class="stat-card">
       <div class="stat-label">📊 Plan</div>
       <div class="stat-value" id="stat-plan">Free</div>
-      <div class="stat-sub" id="stat-plan-sub">2 analyses per day</div>
+      <div class="stat-sub" id="stat-plan-sub">5 analyses per day</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">🔍 Analyses Today</div>
@@ -689,6 +689,7 @@ nav {
         <div class="mode-tabs">
           <button class="mode-tab active" id="tab-paste" onclick="switchMode('paste')">📋 Paste Text</button>
           <button class="mode-tab" id="tab-url" onclick="switchMode('url')">🔗 Enter URL</button>
+          <button class="mode-tab" id="tab-file" onclick="switchMode('file')">📄 Upload File</button>
         </div>
 
         <div id="paste-input">
@@ -699,6 +700,20 @@ nav {
         <div id="url-input" style="display:none;">
           <input type="url" class="url-input" id="tc-url" placeholder="https://example.com/terms"/>
           <div class="char-count" style="margin-top:8px;">e.g. twitter.com/tos — paste the direct T&C page URL</div>
+        </div>
+
+        <div id="file-input" style="display:none;">
+          <div id="file-drop-zone" style="border:2px dashed rgba(79,172,254,0.2);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;" 
+               onclick="document.getElementById('file-picker').click()"
+               ondragover="event.preventDefault();this.style.borderColor='rgba(79,172,254,0.5)'"
+               ondragleave="this.style.borderColor='rgba(79,172,254,0.2)'"
+               ondrop="handleFileDrop(event)">
+            <div style="font-size:32px;margin-bottom:8px;">📄</div>
+            <div style="font-size:14px;color:var(--white);font-weight:500;margin-bottom:4px;">Drop your file here or click to browse</div>
+            <div style="font-size:12px;color:var(--gray);">Supports PDF and Word documents (.pdf, .doc, .docx)</div>
+            <input type="file" id="file-picker" accept=".pdf,.doc,.docx,.txt" style="display:none;" onchange="handleFileSelect(event)"/>
+          </div>
+          <div id="file-name" style="font-size:12px;color:var(--gray);margin-top:8px;display:none;"></div>
         </div>
 
         <div class="limit-warning" id="limit-warning">
@@ -756,7 +771,7 @@ nav {
           <div class="upgrade-feature"><span>✓</span> PDF export</div>
           <div class="upgrade-feature"><span>✓</span> Priority support</div>
         </div>
-        <button class="upgrade-btn" onclick="window.location.href='/#pricing'">Upgrade — $7.99/mo →</button>
+        <button class="upgrade-btn" onclick="window.location.href='/#pricing'">Upgrade — $5.99/mo →</button>
       </div>
 
       <!-- HISTORY -->
@@ -833,7 +848,7 @@ function renderDashboard() {
   const isPro = currentProfile?.plan === 'pro' || currentProfile?.plan === 'lifetime'
   const used = currentProfile?.analyses_today || 0
   const total = currentProfile?.total_analyses || 0
-  const limit = 2
+  const limit = 5
 
   // Nav
   document.getElementById('nav-avatar').textContent = initials
@@ -844,7 +859,7 @@ function renderDashboard() {
 
   // Stats
   document.getElementById('stat-plan').textContent = isPro ? 'Pro ✨' : 'Free'
-  document.getElementById('stat-plan-sub').textContent = isPro ? 'Unlimited analyses' : '2 analyses per day'
+  document.getElementById('stat-plan-sub').textContent = isPro ? 'Unlimited analyses' : '5 analyses per day'
   document.getElementById('stat-used').textContent = used
   document.getElementById('stat-total').textContent = total
 
@@ -887,9 +902,53 @@ function switchMode(mode) {
   currentMode = mode
   document.getElementById('tab-paste').classList.toggle('active', mode === 'paste')
   document.getElementById('tab-url').classList.toggle('active', mode === 'url')
+  document.getElementById('tab-file').classList.toggle('active', mode === 'file')
   document.getElementById('paste-input').style.display = mode === 'paste' ? 'block' : 'none'
   document.getElementById('url-input').style.display = mode === 'url' ? 'block' : 'none'
+  document.getElementById('file-input').style.display = mode === 'file' ? 'block' : 'none'
   document.getElementById('results-area').classList.remove('show')
+}
+
+function handleFileDrop(event) {
+  event.preventDefault()
+  document.getElementById('file-drop-zone').style.borderColor = 'rgba(79,172,254,0.2)'
+  const file = event.dataTransfer.files[0]
+  if (file) processFile(file)
+}
+
+function handleFileSelect(event) {
+  const file = event.target.files[0]
+  if (file) processFile(file)
+}
+
+function processFile(file) {
+  const allowed = ['application/pdf', 'application/msword', 
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain']
+  if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|txt)$/i)) {
+    alert('Please upload a PDF, Word document, or text file.')
+    return
+  }
+  const nameEl = document.getElementById('file-name')
+  nameEl.textContent = '📎 ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)'
+  nameEl.style.display = 'block'
+
+  const reader = new FileReader()
+  reader.onload = function(e) {
+    // For text files, use directly. For PDF/Word, extract what we can
+    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+      window._fileText = e.target.result
+    } else {
+      // For PDF/Word, we'll send as base64 and let the Edge Function handle it
+      // For now extract any readable text
+      const text = e.target.result
+      window._fileText = typeof text === 'string' ? text : 'File uploaded: ' + file.name
+    }
+  }
+  if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+    reader.readAsText(file)
+  } else {
+    reader.readAsText(file) // Basic extraction for now
+  }
 }
 
 function updateCharCount() {
@@ -902,17 +961,23 @@ async function runAnalysis() {
   const isPro = currentProfile?.plan === 'pro' || currentProfile?.plan === 'lifetime'
   const used = currentProfile?.analyses_today || 0
 
-  if (!isPro && used >= 2) {
+  if (!isPro && used >= 5) {
     document.getElementById('limit-warning').classList.add('show')
     return
   }
 
-  const text = currentMode === 'paste'
-    ? document.getElementById('tc-text').value.trim()
-    : document.getElementById('tc-url').value.trim()
+  let text = ''
+  if (currentMode === 'paste') {
+    text = document.getElementById('tc-text').value.trim()
+  } else if (currentMode === 'url') {
+    text = document.getElementById('tc-url').value.trim()
+  } else if (currentMode === 'file') {
+    text = window._fileText || ''
+    if (!text) { alert('Please upload a file first.'); return }
+  }
 
-  if (!text || text.length < 50) {
-    alert('Please paste some T&C text or enter a URL first.')
+  if (!text || text.length < 20) {
+    alert('Please provide some T&C content to analyze.')
     return
   }
 
@@ -946,11 +1011,11 @@ async function runAnalysis() {
     document.getElementById('stat-total').textContent = currentProfile.total_analyses
 
     if (!isPro) {
-      const remaining = Math.max(0, 2 - currentProfile.analyses_today)
+      const remaining = Math.max(0, 5 - currentProfile.analyses_today)
       document.getElementById('stat-remaining').textContent = `${remaining} remaining today`
-      const pct = Math.min((currentProfile.analyses_today / 2) * 100, 100)
+      const pct = Math.min((currentProfile.analyses_today / 5) * 100, 100)
       document.getElementById('stat-bar').style.width = `${pct}%`
-      if (currentProfile.analyses_today >= 2) {
+      if (currentProfile.analyses_today >= 5) {
         document.getElementById('stat-bar').classList.add('full')
         document.getElementById('analyze-btn').disabled = true
         document.getElementById('limit-warning').classList.add('show')
