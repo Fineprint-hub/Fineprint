@@ -1085,7 +1085,7 @@ footer {
   <div style="position:relative;z-index:1;width:100%;">
     <div class="hero-badge">
       <span class="hero-badge-dot"></span>
-      Free to use — No signup required
+      AI-Powered T&amp;C Analysis
     </div>
     <h1>Stop agreeing to things<br/>you haven't <span>read.</span></h1>
     <p class="hero-sub">Paste any Terms & Conditions and get a plain-English breakdown in seconds. Know exactly what you're signing up for.</p>
@@ -1280,7 +1280,7 @@ footer {
       <div class="price-amount">$0</div>
       <div class="price-period">forever</div>
       <ul class="price-features">
-        <li class="included"><span class="check">✓</span> 2 analyses per day</li>
+        <li class="included"><span class="check">✓</span> 5 analyses per day</li>
         <li class="included"><span class="check">✓</span> Full risk breakdown</li>
         <li class="included"><span class="check">✓</span> Red flag detection</li>
         <li><span class="cross">✗</span> Analysis history</li>
@@ -1292,7 +1292,7 @@ footer {
     <div class="price-card popular">
       <div class="popular-tag">⭐ Most Popular</div>
       <div class="price-plan">Pro</div>
-      <div class="price-amount">$7.99<span>/mo</span></div>
+      <div class="price-amount">$5.99<span>/mo</span></div>
       <div class="price-period">billed monthly</div>
       <ul class="price-features">
         <li class="included"><span class="check">✓</span> Unlimited analyses</li>
@@ -1302,11 +1302,11 @@ footer {
         <li class="included"><span class="check">✓</span> PDF export</li>
         <li class="included"><span class="check">✓</span> Browser extension Pro</li>
       </ul>
-      <button class="price-btn filled">Start Pro — $7.99/mo</button>
+      <button class="price-btn filled">Start Pro — $5.99/mo</button>
     </div>
     <div class="price-card">
       <div class="price-plan">Yearly</div>
-      <div class="price-amount">$69.99<span>/yr</span></div>
+      <div class="price-amount">$49.99<span>/yr</span></div>
       <div class="price-period">billed annually — save 27%</div>
       <ul class="price-features">
         <li class="included"><span class="check">✓</span> Unlimited analyses</li>
@@ -1316,7 +1316,7 @@ footer {
         <li class="included"><span class="check">✓</span> PDF export</li>
         <li class="included"><span class="check">✓</span> Browser extension Pro</li>
       </ul>
-      <button class="price-btn outlined">Start Yearly — $69.99</button>
+      <button class="price-btn outlined">Start Yearly — $49.99</button>
     </div>
   </div>
 </div>
@@ -1499,7 +1499,7 @@ async function analyze() {
       <div style="background:rgba(41,121,212,0.08);border:1px solid rgba(79,172,254,0.2);border-radius:12px;padding:24px;text-align:center;margin-top:20px;">
         <div style="font-size:18px;margin-bottom:8px;">👤</div>
         <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;">Sign in to analyze</div>
-        <div style="font-size:13px;color:var(--gray);margin-bottom:16px;">Free accounts get 2 analyses per day — no credit card needed.</div>
+        <div style="font-size:13px;color:var(--gray);margin-bottom:16px;">Free accounts get 5 analyses per day — no credit card needed.</div>
         <a href="fineprint-auth.html" style="background:linear-gradient(135deg,var(--blue-bright),var(--accent));color:#fff;font-size:14px;font-weight:600;padding:10px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Create Free Account →</a>
       </div>
     `
@@ -1546,7 +1546,7 @@ async function analyze() {
           <div style="font-size:24px;margin-bottom:10px;">⏳</div>
           <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;">Daily limit reached</div>
           <div style="font-size:13px;color:var(--gray);margin-bottom:16px;">You've used your 2 free analyses for today. Come back tomorrow or upgrade for unlimited access.</div>
-          <a href="fineprint-auth.html#pricing" style="background:linear-gradient(135deg,var(--blue-bright),var(--accent));color:#fff;font-size:14px;font-weight:600;padding:10px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Upgrade to Pro — $7.99/mo →</a>
+          <a href="fineprint-auth.html#pricing" style="background:linear-gradient(135deg,var(--blue-bright),var(--accent));color:#fff;font-size:14px;font-weight:600;padding:10px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Upgrade to Pro — $5.99/mo →</a>
         </div>
       `
       return
@@ -1625,7 +1625,7 @@ function renderResults(o, note, usage) {
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,22,40,0.6);backdrop-filter:blur(2px);border-radius:12px;gap:8px;">
         <div style="font-size:13px;color:#f0b0b0;font-weight:600;">${o.red_flags.length} red flag${o.red_flags.length > 1 ? 's' : ''} found</div>
         <div style="font-size:12px;color:var(--gray);text-align:center;max-width:220px;line-height:1.5;">Upgrade to Pro to see exactly what to watch out for</div>
-        <a href="fineprint-auth.html" style="margin-top:4px;background:linear-gradient(135deg,var(--blue-bright),var(--accent));color:#fff;font-size:12px;font-weight:600;padding:7px 18px;border-radius:6px;text-decoration:none;">See Red Flags — $7.99/mo</a>
+        <a href="fineprint-auth.html" style="margin-top:4px;background:linear-gradient(135deg,var(--blue-bright),var(--accent));color:#fff;font-size:12px;font-weight:600;padding:7px 18px;border-radius:6px;text-decoration:none;">See Red Flags — $5.99/mo</a>
       </div>
     </div>
   `) : ''
