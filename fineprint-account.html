@@ -439,7 +439,7 @@ nav {
     <div class="nav-logo-icon">🔍</div>
     <span class="nav-logo-text">Fineprint</span>
   </a>
-  <a class="nav-back" href="/">← Back to App</a>
+  <a class="nav-back" href="/dashboard.html">← Back to App</a>
 </nav>
 
 <!-- Loading state shown while auth check runs -->
@@ -497,7 +497,7 @@ nav {
     <div class="section-body">
       <div class="usage-bar-wrap">
         <div class="usage-bar-label">
-          <span id="usage-text">0 of 2 analyses used</span>
+          <span id="usage-text">0 of 5 analyses used</span>
           <span id="usage-reset-text" style="color:var(--gray);font-size:11px;">Resets at midnight</span>
         </div>
         <div class="usage-bar-track">
@@ -644,7 +644,7 @@ function renderPage() {
 
   // Usage bar
   const used = currentProfile?.analyses_today || 0
-  const limit = isPro ? null : 2
+  const limit = isPro ? null : 5
   const usageSection = document.getElementById('usage-section')
 
   if (isPro) {
@@ -662,9 +662,9 @@ function renderPage() {
       <div class="upgrade-card">
         <div class="upgrade-card-text">
           <h4>Want unlimited analyses?</h4>
-          <p>Upgrade to Pro for $7.99/month — no daily limits, full red flag details, and analysis history.</p>
+          <p>Upgrade to Pro for $5.99/month — no daily limits, full red flag details, and analysis history.</p>
         </div>
-        <a href="/#pricing" class="btn btn-primary" style="white-space:nowrap;">Upgrade to Pro →</a>
+        <a href="/upgrade.html" class="btn btn-primary" style="white-space:nowrap;">Upgrade to Pro →</a>
       </div>
     `
   }
