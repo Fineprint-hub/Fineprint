@@ -522,6 +522,14 @@ nav {
       <div id="pw-alert-error" class="alert error"></div>
 
       <div class="form-group">
+        <label class="form-label">Current Password</label>
+        <div class="input-wrapper">
+          <input type="password" class="form-input" id="current-password" placeholder="Enter your current password"/>
+          <button class="toggle-pw" onclick="togglePw('current-password', this)">👁</button>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label class="form-label">New Password</label>
         <div class="input-wrapper">
           <input type="password" class="form-input" id="new-password" placeholder="At least 8 characters"/>
@@ -672,17 +680,33 @@ function renderPage() {
 
 // ── CHANGE PASSWORD ───────────────────────────────────────
 async function changePassword() {
+  const currentPw = document.getElementById('current-password').value
   const newPw = document.getElementById('new-password').value
   const confirmPw = document.getElementById('confirm-password').value
 
   clearPwAlerts()
 
-  if (newPw.length < 8) { showPwAlert('error', 'Password must be at least 8 characters.'); return }
+  if (!currentPw) { showPwAlert('error', 'Please enter your current password.'); return }
+  if (newPw.length < 8) { showPwAlert('error', 'New password must be at least 8 characters.'); return }
   if (newPw !== confirmPw) { showPwAlert('error', 'Passwords do not match.'); return }
+  if (currentPw === newPw) { showPwAlert('error', 'New password must be different from your current password.'); return }
 
   setLoading('pw', true)
 
   try {
+    // Verify current password by re-signing in
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: currentUser.email,
+      password: currentPw
+    })
+
+    if (signInError) {
+      setLoading('pw', false)
+      showPwAlert('error', 'Current password is incorrect.')
+      return
+    }
+
+    // Current password verified — now update to new password
     const { error } = await supabase.auth.updateUser({ password: newPw })
     setLoading('pw', false)
 
@@ -690,6 +714,7 @@ async function changePassword() {
       showPwAlert('error', error.message)
     } else {
       showPwAlert('success', '✓ Password updated successfully.')
+      document.getElementById('current-password').value = ''
       document.getElementById('new-password').value = ''
       document.getElementById('confirm-password').value = ''
     }
