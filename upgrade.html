@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Upgrade to Pro — Fineprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236366f1'/%3E%3Ccircle cx='42' cy='42' r='18' fill='none' stroke='white' stroke-width='8'/%3E%3Cline x1='55' y1='55' x2='75' y2='75' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy: #080f1e;
+  --navy-card: #0e1a30;
+  --navy-border: rgba(79,172,254,0.1);
+  --blue: #2979d4;
+  --accent: #4facfe;
+  --white: #f0f6ff;
+  --gray: #8b9dbb;
+  --gold: #c9a84c;
+  --success: #3db88a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 600px;
+  background: radial-gradient(ellipse, rgba(41,121,212,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+nav {
+  position: sticky; top: 0; z-index: 100;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(8,15,30,0.9);
+  border-bottom: 1px solid var(--navy-border);
+  backdrop-filter: blur(20px);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+
+.nav-logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+
+.nav-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px; font-weight: 700;
+  color: var(--white);
+}
+
+.nav-back {
+  font-size: 13px; color: var(--gray);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 6px;
+  transition: color 0.2s;
+}
+
+.nav-back:hover { color: var(--white); }
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 56px 24px 100px;
+  position: relative; z-index: 1;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.page-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px; font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.page-header p {
+  font-size: 16px; color: var(--gray);
+  max-width: 500px; margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* PLAN CARDS */
+.plans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 640px) {
+  .plans-grid { grid-template-columns: 1fr; }
+  .page-header h1 { font-size: 28px; }
+}
+
+.plan-card {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 20px;
+  padding: 32px 28px;
+  position: relative;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.plan-card:hover {
+  border-color: rgba(79,172,254,0.3);
+  transform: translateY(-2px);
+}
+
+.plan-card.featured {
+  background: linear-gradient(135deg, rgba(41,121,212,0.12), rgba(79,172,254,0.06));
+  border-color: rgba(79,172,254,0.25);
+}
+
+.plan-card.yearly {
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.03));
+  border-color: rgba(201,168,76,0.2);
+}
+
+.plan-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.plan-badge.popular {
+  background: rgba(41,121,212,0.2);
+  color: var(--accent);
+  border: 1px solid rgba(79,172,254,0.3);
+}
+
+.plan-badge.best-value {
+  background: rgba(201,168,76,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.3);
+}
+
+.plan-name {
+  font-size: 13px; font-weight: 600;
+  color: var(--gray); text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 8px;
+}
+
+.plan-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px; font-weight: 700;
+  color: var(--white); margin-bottom: 4px;
+  line-height: 1;
+}
+
+.plan-price span {
+  font-size: 18px; font-weight: 500;
+  color: var(--gray); font-family: 'DM Sans', sans-serif;
+}
+
+.plan-period {
+  font-size: 13px; color: var(--gray);
+  margin-bottom: 24px;
+}
+
+.plan-savings {
+  display: inline-block;
+  background: rgba(61,184,138,0.1);
+  color: var(--success);
+  border: 1px solid rgba(61,184,138,0.2);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px; font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.plan-divider {
+  height: 1px;
+  background: var(--navy-border);
+  margin-bottom: 20px;
+}
+
+.plan-feature {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0;
+  font-size: 14px; color: var(--gray);
+}
+
+.plan-feature .check { color: var(--success); font-size: 14px; }
+
+.plan-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px;
+  border-radius: 12px; border: none;
+  font-size: 15px; font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.plan-btn.primary {
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(41,121,212,0.3);
+}
+
+.plan-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(41,121,212,0.4); }
+
+.plan-btn.gold {
+  background: linear-gradient(135deg, #c9a84c, #f0d080);
+  color: #0a1628;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.2);
+}
+
+.plan-btn.gold:hover { transform: translateY(-1px); }
+
+/* GUARANTEE */
+.guarantee {
+  text-align: center;
+  padding: 24px;
+  background: rgba(61,184,138,0.05);
+  border: 1px solid rgba(61,184,138,0.1);
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+
+.guarantee h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.guarantee p { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+/* FAQ */
+.faq { margin-top: 48px; }
+.faq h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; text-align: center;
+  margin-bottom: 24px;
+}
+
+.faq-item {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 10px;
+}
+
+.faq-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.faq-item p { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+/* ALREADY PRO */
+.already-pro {
+  text-align: center; padding: 60px 24px;
+}
+
+.already-pro .big-icon { font-size: 48px; margin-bottom: 16px; }
+.already-pro h2 { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 10px; }
+.already-pro p { font-size: 14px; color: var(--gray); margin-bottom: 24px; }
+
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: 10px;
+  border: 1px solid var(--navy-border);
+  color: var(--white); font-size: 14px; font-weight: 600;
+  text-decoration: none; transition: all 0.2s;
+  font-family: inherit; cursor: pointer; background: transparent;
+}
+
+.btn-outline:hover { border-color: rgba(79,172,254,0.3); background: rgba(79,172,254,0.05); }
+
+/* LOADING */
+.page-loading {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 60vh; gap: 16px;
+  color: var(--gray); font-size: 14px;
+}
+
+.big-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(79,172,254,0.1);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-icon">🔍</div>
+    <span class="nav-logo-text">Fineprint</span>
+  </a>
+  <a class="nav-back" href="/dashboard.html">← Back to Dashboard</a>
+</nav>
+
+<div class="page">
+
+  <div id="page-loading" class="page-loading">
+    <div class="big-spinner"></div>
+    Loading...
+  </div>
+
+  <div id="already-pro" style="display:none;">
+    <div class="already-pro">
+      <div class="big-icon">✨</div>
+      <h2>You're already on Pro!</h2>
+      <p>You have unlimited analyses and access to all features.</p>
+      <a href="/dashboard.html" class="btn-outline">← Go to Dashboard</a>
+    </div>
+  </div>
+
+  <div id="upgrade-content" style="display:none;">
+    <div class="page-header">
+      <h1>Upgrade to Pro</h1>
+      <p>Remove daily limits and unlock the full power of Fineprint. Cancel anytime.</p>
+    </div>
+
+    <div class="plans-grid">
+
+      <!-- Monthly -->
+      <div class="plan-card featured">
+        <div class="plan-badge popular">⚡ Most Popular</div>
+        <div class="plan-name">Pro Monthly</div>
+        <div class="plan-price">$5<span>.99</span></div>
+        <div class="plan-period">per month, billed monthly</div>
+        <div class="plan-divider"></div>
+        <div class="plan-feature"><span class="check">✓</span> Unlimited analyses per day</div>
+        <div class="plan-feature"><span class="check">✓</span> Full red flag details</div>
+        <div class="plan-feature"><span class="check">✓</span> Complete analysis history</div>
+        <div class="plan-feature"><span class="check">✓</span> PDF export</div>
+        <div class="plan-feature"><span class="check">✓</span> Priority support</div>
+        <div class="plan-feature"><span class="check">✓</span> Cancel anytime</div>
+        <button class="plan-btn primary" onclick="upgrade('monthly')">
+          Start Pro — $5.99/mo →
+        </button>
+      </div>
+
+      <!-- Yearly -->
+      <div class="plan-card yearly">
+        <div class="plan-badge best-value">🏆 Best Value</div>
+        <div class="plan-name">Pro Yearly</div>
+        <div class="plan-price">$49<span>.99</span></div>
+        <div class="plan-period">per year, billed annually</div>
+        <div class="plan-savings">Save 30% — 2 months free</div>
+        <div class="plan-divider"></div>
+        <div class="plan-feature"><span class="check">✓</span> Unlimited analyses per day</div>
+        <div class="plan-feature"><span class="check">✓</span> Full red flag details</div>
+        <div class="plan-feature"><span class="check">✓</span> Complete analysis history</div>
+        <div class="plan-feature"><span class="check">✓</span> PDF export</div>
+        <div class="plan-feature"><span class="check">✓</span> Priority support</div>
+        <div class="plan-feature"><span class="check">✓</span> Cancel anytime</div>
+        <button class="plan-btn gold" onclick="upgrade('yearly')">
+          Start Yearly — $49.99 →
+        </button>
+      </div>
+
+    </div>
+
+    <div class="guarantee">
+      <h3>🛡️ 7-day money-back guarantee</h3>
+      <p>Not happy in the first 7 days? Email us at usefineprint@gmail.com and we'll refund you in full. No questions asked.</p>
+    </div>
+
+    <div class="faq">
+      <h2>Common questions</h2>
+      <div class="faq-item">
+        <h4>Can I cancel anytime?</h4>
+        <p>Yes — cancel anytime from your account settings. You keep Pro access until the end of your billing period.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What payment methods are accepted?</h4>
+        <p>We accept all major credit/debit cards, bank transfers, and mobile money through Flutterwave.</p>
+      </div>
+      <div class="faq-item">
+        <h4>How quickly does Pro activate?</h4>
+        <p>Instantly after payment is confirmed — usually within seconds. Your dashboard will update automatically.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Is my payment secure?</h4>
+        <p>Yes — payments are processed by Flutterwave, a trusted payment provider. We never see your card details.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var SUPABASE_URL = 'https://rguczlvardgbjsamutrm.supabase.co'
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJndWN6bHZhcmRnYmpzYW11dHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1ODM3NDYsImV4cCI6MjA5NTE1OTc0Nn0.9Av83cEUriFk6yR9HPHZzwclTr_GVdnr0a4MQTMHDks'
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+var PAYMENT_LINKS = {
+  monthly: 'https://flutterwave.com/pay/t2rvthxscghi',
+  yearly: 'https://flutterwave.com/pay/0jgdq0omlw9w'
+}
+
+window.addEventListener('load', async function() {
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session?.user) {
+    window.location.href = '/fineprint-auth.html'
+    return
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('plan')
+    .eq('id', session.user.id)
+    .single()
+
+  document.getElementById('page-loading').style.display = 'none'
+
+  const isPro = profile?.plan === 'pro' || profile?.plan === 'pro_yearly'
+
+  if (isPro) {
+    document.getElementById('already-pro').style.display = 'block'
+  } else {
+    document.getElementById('upgrade-content').style.display = 'block'
+  }
+})
+
+function upgrade(plan) {
+  window.location.href = PAYMENT_LINKS[plan]
+}
+</script>
+</body>
+</html>
