@@ -673,7 +673,7 @@ nav {
           <p>Unlimited analyses · History · PDF export · Cancel anytime</p>
         </div>
         <div class="plan-price">
-          <div class="amount">$7.99</div>
+          <div class="amount">$5.99</div>
           <div class="period">per month</div>
         </div>
       </div>
@@ -703,7 +703,7 @@ nav {
       <!-- SIGNUP FORM -->
       <div id="signup-form">
         <h2 class="auth-title">Create your account</h2>
-        <p class="auth-sub">Create your free account — 2 analyses per day. No credit card needed.</p>
+        <p class="auth-sub">Create your free account — 5 analyses per day. No credit card needed.</p>
 
 <div class="form-group">
           <label class="form-label">Full Name</label>
@@ -740,12 +740,12 @@ nav {
             </div>
             <div class="plan-option popular selected" id="plan-pro" >
               <div class="plan-option-name">Pro</div>
-              <div class="plan-option-price">$7.99</div>
+              <div class="plan-option-price">$5.99</div>
               <div class="plan-option-sub">/month</div>
             </div>
             <div class="plan-option" id="plan-yearly" >
               <div class="plan-option-name">Yearly</div>
-              <div class="plan-option-price">$69.99</div>
+              <div class="plan-option-price">$49.99</div>
               <div class="plan-option-sub">/year</div>
             </div>
           </div>
@@ -939,8 +939,8 @@ function selectPlan(plan) {
   var btnText = document.getElementById('signup-btn-text');
   if (!btnText) return;
   if (plan === 'free') btnText.textContent = 'Create Free Account →';
-  else if (plan === 'pro') btnText.textContent = 'Create Account & Pay $7.99/mo →';
-  else btnText.textContent = 'Create Account & Pay $69.99/yr →';
+  else if (plan === 'pro') btnText.textContent = 'Create Account & Pay $5.99/mo →';
+  else btnText.textContent = 'Create Account & Pay $49.99/yr →';
 }
 
 // ── PASSWORD STRENGTH ─────────────────────────────────
