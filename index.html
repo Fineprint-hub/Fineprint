@@ -1686,6 +1686,50 @@ function renderResults(o, note, usage) {
 }
 
 // Enter key on URL input
+async function notifyMe() {
+  const emailEl = document.getElementById('ext-email')
+  const btn = document.getElementById('notify-btn')
+  const successEl = document.getElementById('notify-success')
+  const errorEl = document.getElementById('notify-error')
+  const email = emailEl.value.trim()
+
+  // Reset
+  successEl.style.display = 'none'
+  errorEl.style.display = 'none'
+
+  if (!email || !email.includes('@')) {
+    errorEl.textContent = 'Please enter a valid email address.'
+    errorEl.style.display = 'block'
+    return
+  }
+
+  btn.textContent = 'Saving...'
+  btn.disabled = true
+
+  try {
+    const { error } = await supabase
+      .from('waitlist')
+      .insert({ email: email, source: 'extension_waitlist' })
+
+    if (error && error.code === '23505') {
+      // Duplicate email
+      successEl.textContent = "✓ You're already on the list — we'll notify you!"
+      successEl.style.display = 'block'
+    } else if (error) {
+      throw error
+    } else {
+      successEl.style.display = 'block'
+      emailEl.value = ''
+    }
+  } catch(e) {
+    errorEl.textContent = 'Something went wrong. Please try again.'
+    errorEl.style.display = 'block'
+  } finally {
+    btn.textContent = 'Notify Me'
+    btn.disabled = false
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('tc-url')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') analyze()
