@@ -1082,7 +1082,9 @@ async function showForgotPassword() {
     return;
   }
   try {
-    var result = await supabaseClient.auth.resetPasswordForEmail(email);
+    var result = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://fineprint-ecru.vercel.app/reset-password.html'
+    });
     if (result.error) showAlert('error', result.error.message);
     else showAlert('success', 'Password reset email sent to ' + email + '. Check your inbox.');
   } catch(e) {
